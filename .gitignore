@@ -1,0 +1,28 @@
+# Dependencies
+**/node_modules
+
+# Build outputs
+**/build
+**/dist
+
+# Wrangler state and cache
+**/.wrangler
+
+# React Router cache
+**/.react-router
+
+# Other caches
+**/.cache
+
+# Coverage reports
+**/coverage
+
+# Environment variables (never commit secrets)
+**/.dev.vars
+
+# Generated type files
+**/worker-configuration.d.ts
+
+# OS files
+**/.DS_Store
+**/tsconfig.tsbuildinfo

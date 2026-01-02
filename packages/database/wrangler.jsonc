@@ -1,0 +1,12 @@
+{
+  "$schema": "https://unpkg.com/wrangler@latest/config-schema.json",
+  "name": "blehprint-database",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_name": "blehprint-database",
+      "migrations_dir": "./migrations"
+    }
+  ]
+}

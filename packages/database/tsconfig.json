@@ -1,0 +1,15 @@
+{
+  "extends": "@total-typescript/tsconfig/tsc/no-dom/library-monorepo",
+  "compilerOptions": {
+    "lib": ["ES2022"],
+    "types": ["@cloudflare/workers-types"],
+    "moduleResolution": "bundler",
+    "module": "ESNext",
+    "target": "ESNext",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true
+  },
+  "include": ["src/**/*"]
+}
