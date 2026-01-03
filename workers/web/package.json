@@ -13,6 +13,7 @@
     "cf:typegen": "wrangler types"
   },
   "dependencies": {
+    "@blehprint/auth": "workspace:*",
     "@blehprint/database": "workspace:*",
     "@react-router/cloudflare": "^7.9.5",
     "@react-router/serve": "^7.9.4",

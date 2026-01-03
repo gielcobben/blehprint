@@ -1,0 +1,19 @@
+{
+  "name": "@blehprint/auth",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./server": "./src/server.ts"
+  },
+  "dependencies": {
+    "@blehprint/database": "workspace:*",
+    "better-auth": "^1.2.0",
+    "react-router": "^7.9.5"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20251118.0",
+    "typescript": "^5.9.3"
+  }
+}

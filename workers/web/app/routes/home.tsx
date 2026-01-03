@@ -12,7 +12,7 @@ export function meta(_: Route.MetaArgs) {
 
 export async function loader() {
   const db = database(env.DB);
-  const users = await db.query.users.findMany();
+  const users = await db.query.user.findMany();
 
   return { users };
 }

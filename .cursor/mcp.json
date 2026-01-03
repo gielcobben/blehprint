@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "react-router Docs": {
+      "url": "https://gitmcp.io/remix-run/react-router"
+    },
+    "better-auth": {
+      "url": "https://mcp.chonkie.ai/better-auth/better-auth-builder/mcp"
+    }
+  }
+}
