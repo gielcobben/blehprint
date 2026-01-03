@@ -1,40 +1,64 @@
-# Minimal React Router Cloudflare Workers Template
+# Web Worker
 
-This is a minimal template for building React applications with React Router and Cloudflare Workers. It includes server-side rendering, hot module replacement, TypeScript, and middleware by default.
+The main web application for Blehprint, built with React Router v7 and deployed to Cloudflare Workers.
 
-## Getting Started
+## Tech Stack
 
-### Clone the Template
+- **Framework:** [React Router v7](https://reactrouter.com) — Full-stack React framework with SSR
+- **Runtime:** [Cloudflare Workers](https://workers.cloudflare.com) — Edge-first serverless compute
+- **UI:** [@blehprint/ui](../packages/ui) — Shared component library
+- **Styling:** [Tailwind CSS v4](https://tailwindcss.com)
 
-The recommended way to clone this repo is using [degit](https://github.com/Rich-Harris/degit)
+## Development
 
-```bash
-bunx degit sergiodxa/react-router-cloudflare-minimal my-app
-```
-
-After the repo is clonned, this will remove the `LICENSE` and `.github/FUNDING.yml` files, and the `.git` folder, so you will have a clean slate to start your project.
-
-### Installation
-
-Install the dependencies:
+Start the development server:
 
 ```bash
-bun install
-```
+# From the monorepo root
+bun run dev:web
 
-### Development
-
-Start the development server with HMR:
-
-```bash
+# Or from this directory
 bun run dev
 ```
 
-Your application will be available at `http://localhost:3000`.
+The app will be available at [http://localhost:3000](http://localhost:3000).
+
+## Project Structure
+
+```
+workers/web/
+├── app/
+│   ├── routes/          # React Router route modules
+│   ├── pages/           # Page components
+│   ├── root.tsx         # Root layout component
+│   ├── routes.ts        # Route configuration
+│   ├── app.css          # Global styles
+│   └── entry.*.ts       # Entry points (client, server, worker)
+├── public/              # Static assets
+├── wrangler.jsonc       # Cloudflare Workers config
+└── vite.config.ts       # Vite configuration
+```
+
+## Using UI Components
+
+Import components from the shared UI package:
+
+```tsx
+import { Button } from "@blehprint/ui/components/button";
+import { cn } from "@blehprint/ui/lib/utils";
+
+export function MyPage() {
+  return (
+    <div className={cn("container", "py-8")}>
+      <Button>Click me</Button>
+    </div>
+  );
+}
+```
+
+The global styles are already imported in `app/app.css`.
 
 ## Building for Production
-
-Create a production build:
 
 ```bash
 bun run build
@@ -42,37 +66,36 @@ bun run build
 
 ## Deployment
 
-This template can only be deployed to Cloudflare Workers.
+Deploy to Cloudflare Workers:
 
 ```bash
+# From the monorepo root
+bun run deploy:web
+
+# Or from this directory
 bun run deploy
 ```
 
-This will init the deploy script of wrangler and guide you to deploy the application.
+## Environment Variables
 
-### Using GitHub Actions
+Copy the example environment file:
 
-This template includes a GitHub Actions workflow that will deploy your application to Cloudflare Workers when triggered.
+```bash
+cp .dev.vars.example .dev.vars
+```
 
-To use it you need to set the following secrets in your repository:
+Required variables:
 
-- `CLOUDFLARE_API_TOKEN`
-- `CLOUDFLARE_ACCOUNT_ID`
+| Variable | Description |
+|----------|-------------|
+| `BETTER_AUTH_SECRET` | Secret key for BetterAuth sessions |
 
-You can get the `CLOUDFLARE_API_TOKEN` from the Cloudflare dashboard and the `CLOUDFLARE_ACCOUNT_ID` from the wrangler configuration file.
+For production, set secrets using Wrangler:
 
-Then trigger the workflow by clicking on the "Actions" tab in your repository and running the "Deploy" workflow.
-
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
-
----
-
-## Author
-
-- [Sergio Xalambrí](https://sergiodxa.com)
+```bash
+bunx wrangler secret put BETTER_AUTH_SECRET
+```
 
 ## License
 
-This project is open source and available under the [MIT License](LICENSE).
+MIT
