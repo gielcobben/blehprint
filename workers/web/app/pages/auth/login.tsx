@@ -59,7 +59,6 @@ export function LoginPage() {
               aria-invalid={!!fields.email.errors}
               placeholder="Enter your email"
               enterKeyHint="next"
-              defaultValue="g.cobben@gmail.com"
             />
             {fields.email.errors && (
               <FieldError>{fields.email.errors}</FieldError>
@@ -73,7 +72,6 @@ export function LoginPage() {
               placeholder="Enter your password"
               autoComplete="current-password"
               enterKeyHint="done"
-              defaultValue="helloworld"
             />
             {fields.password.errors && (
               <FieldError>{fields.password.errors}</FieldError>
