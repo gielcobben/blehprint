@@ -1,7 +1,7 @@
-import { betterAuth } from "better-auth";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { database } from "@blehprint/database";
 import * as schema from "@blehprint/database/schema";
+import { betterAuth } from "better-auth";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { redirect } from "react-router";
 
 export type AuthInstance = ReturnType<typeof betterAuth>;
