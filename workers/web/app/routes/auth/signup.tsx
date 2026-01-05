@@ -1,6 +1,12 @@
 import { redirect } from "react-router";
 import type { Route } from "./+types/signup";
-import { getSession } from "~/utils/auth.server";
+import {
+  getAuthErrorMessageAsync,
+  getSession,
+  serverAuth,
+} from "~/utils/auth.server";
+import { SignUpPage, signupSchema } from "~/pages/auth/signup";
+import { parseWithZod } from "@conform-to/zod/v4";
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Sign Up" }];
@@ -16,10 +22,43 @@ export async function loader({ request }: Route.LoaderArgs) {
   return null;
 }
 
+export async function action({ request }: Route.ActionArgs) {
+  const formData = await request.formData();
+  const submission = parseWithZod(formData, { schema: signupSchema });
+
+  if (submission.status !== "success") {
+    return submission.reply();
+  }
+
+  try {
+    const auth = serverAuth();
+    const response = await auth.api.signUpEmail({
+      body: {
+        ...submission.value,
+      },
+      asResponse: true,
+    });
+
+    if (response.ok) {
+      return redirect("/", {
+        headers: {
+          "Set-Cookie": response.headers.get("Set-Cookie") || "",
+        },
+      });
+    }
+
+    return submission.reply({
+      formErrors: ["Unable to sign in. Please try again."],
+    });
+  } catch (error) {
+    const message = await getAuthErrorMessageAsync(
+      error,
+      "Unable to sign up. Please try again."
+    );
+    return submission.reply({ formErrors: [message] });
+  }
+}
+
 export default function LoginPage({}: Route.ComponentProps) {
-  return (
-    <>
-      <h1>Sign Up</h1>
-    </>
-  );
+  return <SignUpPage />;
 }

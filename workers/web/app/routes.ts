@@ -13,6 +13,7 @@ export default [
   layout("routes/auth/layout.tsx", [
     route("/auth/login", "routes/auth/login.tsx"),
     route("/auth/signup", "routes/auth/signup.tsx"),
+    route("/auth/logout", "routes/auth/logout.tsx"),
   ]),
 
   // API

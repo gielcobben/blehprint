@@ -18,6 +18,11 @@ export default defineConfig({
       ),
     },
   },
+  ssr: {
+    optimizeDeps: {
+      include: ["@base-ui/react"],
+    },
+  },
   plugins: [
     cloudflare({
       viteEnvironment: { name: "ssr" },

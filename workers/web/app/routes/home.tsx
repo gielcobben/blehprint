@@ -1,7 +1,6 @@
+import { getSession } from "~/utils/auth.server";
 import { HomePage } from "../pages/home";
 import type { Route } from "./+types/home";
-import { database } from "@blehprint/database";
-import { env } from "cloudflare:workers";
 
 export function meta(_: Route.MetaArgs) {
   return [
@@ -10,13 +9,13 @@ export function meta(_: Route.MetaArgs) {
   ];
 }
 
-export async function loader() {
-  const db = database(env.DB);
-  const users = await db.query.user.findMany();
-
-  return { users };
+export async function loader({ request }: Route.LoaderArgs) {
+  const session = await getSession(request);
+  return { session: session };
 }
 
-export default function Home({ loaderData: { users } }: Route.ComponentProps) {
-  return <HomePage users={users} />;
+export default function HomeRoute({
+  loaderData: { session },
+}: Route.ComponentProps) {
+  return <HomePage session={session} />;
 }
