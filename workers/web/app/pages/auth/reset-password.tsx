@@ -34,7 +34,9 @@ export const resetPasswordSchema = z
 
 export function ResetPasswordPage({ token }: { token: string }) {
   const lastResult = useActionData();
-  const isPending = useIsPending();
+
+  const formAction = `/auth/reset-password/${token}`;
+  const isPending = useIsPending({ formAction });
 
   const [form, fields] = useForm({
     lastResult,
@@ -49,7 +51,7 @@ export function ResetPasswordPage({ token }: { token: string }) {
     <Form
       {...getFormProps(form)}
       method="POST"
-      action={`/auth/reset-password/${token}`}
+      action={formAction}
       className="w-full max-w-xs px-4"
     >
       <input
