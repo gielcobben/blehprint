@@ -108,24 +108,39 @@ export function SignUpPage() {
               <FieldError>{fields.confirmPassword.errors}</FieldError>
             )}
           </Field>
-          <Field orientation="horizontal" className="grid grid-cols-2 gap-2">
-            <Button
-              disabled={isPending}
-              nativeButton={false}
-              variant="outline"
-              render={<Link to="/" />}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? (
-                <Spinner className="size-4 animate-spin" />
-              ) : (
-                "Sign Up"
-              )}
-            </Button>
-          </Field>
         </FieldGroup>
+
+        <Field orientation="horizontal">
+          <FieldDescription>
+            By clicking continue, you agree to our{" "}
+            <a href="/" className="text-primary hover:underline">
+              Terms of Service
+            </a>
+            {" and "}
+            <a href="/" className="text-primary hover:underline">
+              Privacy Policy
+            </a>
+            .
+          </FieldDescription>
+        </Field>
+
+        <Field orientation="horizontal" className="grid grid-cols-2 gap-2">
+          <Button
+            disabled={isPending}
+            nativeButton={false}
+            variant="outline"
+            render={<Link to="/" />}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isPending}>
+            {isPending ? (
+              <Spinner className="size-4 animate-spin" />
+            ) : (
+              "Sign Up"
+            )}
+          </Button>
+        </Field>
       </FieldSet>
     </Form>
   );

@@ -13,7 +13,7 @@ import { Input } from "@blehprint/ui/components/input";
 import { Spinner } from "@blehprint/ui/components/spinner";
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
-import { Form, Link, useActionData } from "react-router";
+import { Form, href, Link, useActionData } from "react-router";
 import z from "zod";
 import { useIsPending } from "~/utils/form";
 
@@ -66,7 +66,7 @@ export function ForgotPasswordPage() {
               disabled={isPending}
               nativeButton={false}
               variant="outline"
-              render={<Link to="/" />}
+              render={<Link to={href("/auth/login")} />}
             >
               Cancel
             </Button>
