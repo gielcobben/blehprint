@@ -81,7 +81,7 @@ export function LoginPage() {
             )}
             <Link
               to="/auth/forgot-password"
-              className="text-xs text-muted-foreground absolute right-0 top-0 !w-fit"
+              className="text-xs text-muted-foreground absolute right-0 top-0 w-fit!"
             >
               Forgot password?
             </Link>
