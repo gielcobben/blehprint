@@ -18,7 +18,7 @@ A modern full-stack TypeScript monorepo template for building applications on Cl
 | [`@blehprint/auth`](./packages/auth)         | BetterAuth authentication   | [README](./packages/auth/readme.md)     |
 | [`@blehprint/database`](./packages/database) | Drizzle ORM + D1 database   | [README](./packages/database/readme.md) |
 | [`@blehprint/ui`](./packages/ui)             | shadcn/ui component library | [README](./packages/ui/readme.md)       |
-| [`workers/web`](./workers/web)               | Main web application        | [README](./workers/web/readme.md)       |
+| [`workers/web`](./workers/web)               | Main web application        | [README](./workers/web/README.md)       |
 
 ## Getting Started
 

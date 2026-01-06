@@ -4,8 +4,8 @@ Authentication package powered by [BetterAuth](https://better-auth.com), configu
 
 ## Features
 
-- Email & password authentication
-- Session management with cookie caching
+- Email & password authentication with email verification
+- Session management (7-day expiry, daily refresh)
 - Route protection with automatic redirects
 - Type-safe session data
 
@@ -102,13 +102,23 @@ openssl rand -base64 32
 
 ### Session Settings
 
-Sessions are cached in cookies for 5 minutes by default to reduce database lookups:
+Sessions are configured with a 7-day expiry and are refreshed daily:
 
 ```typescript
 session: {
+  expiresIn: 60 * 60 * 24 * 7, // 7 days
+  updateAge: 60 * 60 * 24, // 1 day (refresh session if older)
+}
+```
+
+To enable cookie caching (reduces database lookups), uncomment in `server.ts`:
+
+```typescript
+session: {
+  // ...
   cookieCache: {
     enabled: true,
-    maxAge: 60 * 5, // 5 minutes
+    maxAge: 60 * 5, // Cache for 5 minutes
   },
 }
 ```

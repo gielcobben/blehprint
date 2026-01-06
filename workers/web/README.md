@@ -6,7 +6,7 @@ The main web application for Blehprint, built with React Router v7 and deployed 
 
 - **Framework:** [React Router v7](https://reactrouter.com) — Full-stack React framework with SSR
 - **Runtime:** [Cloudflare Workers](https://workers.cloudflare.com) — Edge-first serverless compute
-- **UI:** [@blehprint/ui](../packages/ui) — Shared component library
+- **UI:** [@blehprint/ui](../../packages/ui) — Shared component library
 - **Styling:** [Tailwind CSS v4](https://tailwindcss.com)
 
 ## Project Structure

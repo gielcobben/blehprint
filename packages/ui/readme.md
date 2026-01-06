@@ -63,7 +63,7 @@ import { Button } from "@blehprint/ui/components/button";
 
 export function MyComponent() {
   return (
-    <Button variant="primary" size="lg">
+    <Button variant="default" size="lg">
       Click me
     </Button>
   );
