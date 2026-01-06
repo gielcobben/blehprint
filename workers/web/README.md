@@ -9,6 +9,70 @@ The main web application for Blehprint, built with React Router v7 and deployed 
 - **UI:** [@blehprint/ui](../packages/ui) — Shared component library
 - **Styling:** [Tailwind CSS v4](https://tailwindcss.com)
 
+## Project Structure
+
+```
+workers/web/
+├── app/
+│   ├── routes/          # Route modules (loaders, actions, meta)
+│   ├── pages/           # Pure React page components
+│   ├── utils/           # Shared utilities
+│   ├── root.tsx         # Root layout component
+│   ├── routes.ts        # Route configuration
+│   ├── app.css          # Global styles
+│   └── entry.*.ts       # Entry points (client, server, worker)
+├── public/              # Static assets
+├── wrangler.jsonc       # Cloudflare Workers config
+└── vite.config.ts       # Vite configuration
+```
+
+### `routes/` — Server Logic & Data Flow
+
+Route files handle all the heavy lifting:
+
+- **`loader`** — Server-side data fetching, authentication checks, redirects
+- **`action`** — Form submissions, mutations, API calls
+- **`meta`** — Page title and SEO metadata
+- **Default export** — Thin wrapper that passes loader data to page components
+
+```tsx
+// routes/home.tsx
+import { HomePage } from "../pages/home";
+
+export function meta() {
+  return [{ title: "Home" }];
+}
+
+export async function loader({ request }: Route.LoaderArgs) {
+  const session = await getSession(request);
+  return { session };
+}
+
+export default function HomeRoute({ loaderData }: Route.ComponentProps) {
+  return <HomePage session={loaderData.session} />;
+}
+```
+
+### `pages/` — Pure React Components
+
+Page files contain only presentational React components:
+
+- **No server code** — No loaders, actions, or server imports
+- **Props-driven** — Receive all data via props from route files
+- **Focused on UI** — Layout, styling, and user interactions
+- **Easily testable** — Can be rendered in isolation with mock props
+
+```tsx
+// pages/home.tsx
+export function HomePage({ session }: { session: SessionData }) {
+  return (
+    <main>
+      <h1>Welcome, {session?.user.name ?? "Guest"}</h1>
+    </main>
+  );
+}
+```
+
 ## Development
 
 Start the development server:
@@ -22,22 +86,6 @@ bun run dev
 ```
 
 The app will be available at [http://localhost:3000](http://localhost:3000).
-
-## Project Structure
-
-```
-workers/web/
-├── app/
-│   ├── routes/          # React Router route modules
-│   ├── pages/           # Page components
-│   ├── root.tsx         # Root layout component
-│   ├── routes.ts        # Route configuration
-│   ├── app.css          # Global styles
-│   └── entry.*.ts       # Entry points (client, server, worker)
-├── public/              # Static assets
-├── wrangler.jsonc       # Cloudflare Workers config
-└── vite.config.ts       # Vite configuration
-```
 
 ## Using UI Components
 

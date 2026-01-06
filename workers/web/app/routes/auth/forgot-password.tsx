@@ -1,15 +1,18 @@
 import { redirect } from "react-router";
-import type { Route } from "./+types/signup";
+import type { Route } from "./+types/forgot-password";
 import {
   getAuthErrorMessageAsync,
   getSession,
   serverAuth,
 } from "~/utils/auth.server";
-import { SignUpPage, signupSchema } from "~/pages/auth/signup";
 import { parseWithZod } from "@conform-to/zod/v4";
+import {
+  forgotPasswordSchema,
+  ForgotPasswordPage,
+} from "~/pages/auth/forgot-password";
 
 export function meta(_: Route.MetaArgs) {
-  return [{ title: "Sign Up" }];
+  return [{ title: "Forgot Password" }];
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -25,13 +28,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
   const submission = parseWithZod(formData, {
-    schema: signupSchema.refine(
-      (data) => data.password === data.confirmPassword,
-      {
-        message: "Passwords do not match",
-        path: ["confirmPassword"],
-      }
-    ),
+    schema: forgotPasswordSchema,
   });
 
   if (submission.status !== "success") {
@@ -40,7 +37,7 @@ export async function action({ request }: Route.ActionArgs) {
 
   try {
     const auth = serverAuth();
-    const response = await auth.api.signUpEmail({
+    const response = await auth.api.requestPasswordReset({
       body: {
         ...submission.value,
       },
@@ -48,7 +45,7 @@ export async function action({ request }: Route.ActionArgs) {
     });
 
     if (response.ok) {
-      return redirect("/", {
+      return redirect("/auth/check-email", {
         headers: {
           "Set-Cookie": response.headers.get("Set-Cookie") || "",
         },
@@ -56,17 +53,17 @@ export async function action({ request }: Route.ActionArgs) {
     }
 
     return submission.reply({
-      formErrors: ["Unable to sign in. Please try again."],
+      formErrors: ["Unable to send reset email. Please try again."],
     });
   } catch (error) {
     const message = await getAuthErrorMessageAsync(
       error,
-      "Unable to sign up. Please try again."
+      "Unable to send reset email. Please try again."
     );
     return submission.reply({ formErrors: [message] });
   }
 }
 
-export default function LoginPage({}: Route.ComponentProps) {
-  return <SignUpPage />;
+export default function ForgotPasswordRoute({}: Route.ComponentProps) {
+  return <ForgotPasswordPage />;
 }
