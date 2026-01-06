@@ -48,7 +48,7 @@ export async function action({ request }: Route.ActionArgs) {
     });
 
     if (response.ok) {
-      return redirect("/", {
+      return redirect("/auth/check-email", {
         headers: {
           "Set-Cookie": response.headers.get("Set-Cookie") || "",
         },

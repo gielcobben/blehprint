@@ -17,6 +17,7 @@ export default [
     route("/auth/forgot-password", "routes/auth/forgot-password.tsx"),
     route("/auth/reset-password/:token", "routes/auth/reset-password.tsx"),
     route("/auth/check-email", "routes/auth/check-email.tsx"),
+    route("/auth/verify-email", "routes/auth/verify-email.tsx"),
   ]),
 
   // API

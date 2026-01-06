@@ -49,9 +49,12 @@ export async function action({ request }: Route.ActionArgs) {
       });
     }
 
-    return submission.reply({
-      formErrors: ["Unable to sign in. Please try again."],
-    });
+    // Handle non-ok responses (including 403 email verification errors)
+    const message = await getAuthErrorMessageAsync(
+      response,
+      "Invalid email or password"
+    );
+    return submission.reply({ formErrors: [message] });
   } catch (error) {
     const message = await getAuthErrorMessageAsync(
       error,

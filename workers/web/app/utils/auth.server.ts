@@ -54,6 +54,11 @@ export async function getAuthErrorMessageAsync(
   fallback = "Something went wrong. Please try again."
 ): Promise<string> {
   if (error instanceof Response) {
+    // Handle 403 email verification error
+    if (error.status === 403) {
+      return "Please verify your email address before signing in.";
+    }
+
     const data = (await error.json().catch(() => ({}))) as { message?: string };
     return data.message || fallback;
   }

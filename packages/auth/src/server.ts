@@ -25,10 +25,20 @@ export function createAuth(d1: D1Database, secret: string): AuthInstance {
     secret,
     emailAndPassword: {
       enabled: true,
+      requireEmailVerification: true,
       sendResetPassword: async function ({ user, url, token }, request) {
         console.log("=== Password Reset ===");
         console.log("User:", user.email);
         console.log("Reset URL:", url);
+        console.log("Token:", token);
+        console.log("====================");
+      },
+    },
+    emailVerification: {
+      sendVerificationEmail: async ({ user, url, token }, request) => {
+        console.log("=== Email Verification ===");
+        console.log("User:", user.email);
+        console.log("Verification URL:", url);
         console.log("Token:", token);
         console.log("====================");
       },
