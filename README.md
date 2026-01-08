@@ -114,6 +114,35 @@ import { Button } from "@blehprint/ui/components/button";
 
 → [Full UI documentation](./packages/ui/readme.md)
 
+### Theming
+
+Dark/light mode powered by [remix-themes](https://github.com/abereghici/remix-themes).
+
+**Setup** — The theme is configured in `workers/web/app/root.tsx`:
+
+- `ThemeProvider` wraps the app and syncs theme state
+- `PreventFlashOnWrongTheme` prevents flash of wrong theme on SSR
+- Theme class (`dark`/`light`) is applied to `<html>`
+- Theme action endpoint at `/api/theme` handles persistence
+
+**Usage** — Toggle theme anywhere with the `useTheme` hook:
+
+```tsx
+import { useTheme } from "remix-themes";
+
+function ThemeToggle() {
+  const [theme, setTheme] = useTheme();
+
+  return (
+    <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
+      Toggle theme
+    </button>
+  );
+}
+```
+
+**Configuration** — Cookie settings are in `workers/web/app/utils/theme.server.ts`. Update the domain for production.
+
 ## Deployment
 
 ### Production secrets
