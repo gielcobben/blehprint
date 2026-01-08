@@ -25,6 +25,7 @@
     "react": "^19.2.0",
     "react-dom": "^19.1.1",
     "react-router": "^7.9.5",
+    "remix-themes": "^2.0.4",
     "zod": "^4.3.5"
   },
   "devDependencies": {
@@ -42,5 +43,10 @@
     "vite": "^7.1.12",
     "vite-tsconfig-paths": "^5.1.4",
     "wrangler": "^4.45.3"
+  },
+  "overrides": {
+    "next-themes": {
+      "remix-themes": "latest"
+    }
   }
 }

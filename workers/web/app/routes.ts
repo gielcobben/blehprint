@@ -22,4 +22,5 @@ export default [
 
   // API
   route("api/auth/*", "routes/api/auth.tsx"),
+  route("/api/theme", "routes/api/theme.tsx"),
 ] satisfies RouteConfig;
