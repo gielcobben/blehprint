@@ -4,7 +4,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { redirect } from "react-router";
 
-export type AuthInstance = ReturnType<typeof betterAuth>;
+export type AuthInstance = ReturnType<typeof createAuth>;
 export type SessionData = Awaited<
   ReturnType<AuthInstance["api"]["getSession"]>
 >;
@@ -12,7 +12,7 @@ export type SessionData = Awaited<
 /**
  * Create a BetterAuth instance configured for Cloudflare D1
  */
-export function createAuth(d1: D1Database, secret: string): AuthInstance {
+export function createAuth(d1: D1Database, secret: string) {
   const db = database(d1);
 
   return betterAuth({
@@ -62,7 +62,7 @@ export function createAuth(d1: D1Database, secret: string): AuthInstance {
 export async function getSession(
   request: Request,
   d1: D1Database,
-  secret: string
+  secret: string,
 ): Promise<SessionData> {
   const auth = createAuth(d1, secret);
   return auth.api.getSession({ headers: request.headers });
@@ -76,7 +76,7 @@ export async function requireAuth(
   request: Request,
   d1: D1Database,
   secret: string,
-  redirectTo = "/login"
+  redirectTo = "/login",
 ): Promise<NonNullable<SessionData>> {
   const session = await getSession(request, d1, secret);
 
