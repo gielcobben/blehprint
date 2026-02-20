@@ -75,9 +75,8 @@ console.log("  removed  scripts/rename.ts");
 console.log(`\n✓ Renamed ${OLD_NAME} → ${newName} in ${filesChanged} files.\n`);
 console.log("Next steps:");
 console.log("  1. bun install");
-console.log(`  2. bunx wrangler d1 create ${newName}-database`);
-console.log(
-	"  3. Copy the database_id into packages/database/wrangler.jsonc and workers/web/wrangler.jsonc",
-);
-console.log("  4. cp workers/web/.dev.vars.example workers/web/.dev.vars");
+console.log("  2. cp workers/web/.dev.vars.example workers/web/.dev.vars");
+console.log("  3. openssl rand -base64 32");
+console.log("     Add the output to .dev.vars as BETTER_AUTH_SECRET");
+console.log("  4. bun run db:migrate:local");
 console.log("  5. bun run dev:web");

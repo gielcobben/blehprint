@@ -24,28 +24,22 @@ bun run rename my-app
 bun install
 ```
 
-### 3. Set up the database
-
-```bash
-bunx wrangler d1 create my-app-database
-```
-
-Copy the `database_id` to `packages/database/wrangler.jsonc` and `workers/web/wrangler.jsonc`.
-
-### 4. Configure authentication
+### 3. Configure authentication
 
 ```bash
 cp workers/web/.dev.vars.example workers/web/.dev.vars
-openssl rand -base64 32  # Add output to .dev.vars as BETTER_AUTH_SECRET
+openssl rand -base64 32
 ```
 
-### 5. Run migrations
+Add the output to `.dev.vars` as `BETTER_AUTH_SECRET`.
+
+### 4. Run migrations
 
 ```bash
 bun run db:migrate:local
 ```
 
-### 6. Start development
+### 5. Start development
 
 ```bash
 bun run dev:web
@@ -170,13 +164,27 @@ function ThemeToggle() {
 
 ## Deployment
 
-### Production secrets
+### 1. Create the D1 database
+
+```bash
+bunx wrangler d1 create my-app-database
+```
+
+Copy the `database_id` into `packages/database/wrangler.jsonc` and `workers/web/wrangler.jsonc`.
+
+### 2. Run remote migrations
+
+```bash
+bun run db:migrate:remote
+```
+
+### 3. Set production secrets
 
 ```bash
 bunx wrangler secret put BETTER_AUTH_SECRET
 ```
 
-### Deploy
+### 4. Deploy
 
 ```bash
 bun run deploy:web      # Deploy web worker
