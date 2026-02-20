@@ -2,7 +2,11 @@
 
 A modern full-stack TypeScript monorepo template for building applications on Cloudflare's edge platform.
 
+**Auth, database, UI components, dark mode** — all wired up and ready to deploy.
+
 ## Use This Template
+
+> **Prerequisites:** [Bun](https://bun.sh) and a [Cloudflare account](https://dash.cloudflare.com/sign-up)
 
 ### 1. Clone and rename
 
@@ -12,7 +16,7 @@ cd my-app
 bun run rename my-app
 ```
 
-This downloads the template (without git history) and renames all packages from `@blehprint/*` to `@my-app/*`.
+[degit](https://github.com/Rich-Harris/degit) downloads the template without git history, giving you a clean slate. The rename script updates all packages from `@blehprint/*` to `@my-app/*`.
 
 ### 2. Install dependencies
 
