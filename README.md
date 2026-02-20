@@ -114,6 +114,18 @@ import { Button } from "@blehprint/ui/components/button";
 
 → [Full UI documentation](./packages/ui/readme.md)
 
+### Icons
+
+Icons are provided by [Lucide](https://lucide.dev). The package is available in both `@blehprint/ui` and `workers/web` so you can import icons directly where you need them without re-exporting through the UI package:
+
+```tsx
+import { ArrowRight, Loader2, Menu } from "lucide-react";
+
+<ArrowRight className="size-4" />
+```
+
+Browse all available icons at [lucide.dev/icons](https://lucide.dev/icons). Only the icons you import are included in the bundle.
+
 ### Theming
 
 Dark/light mode powered by [remix-themes](https://github.com/abereghici/remix-themes).
