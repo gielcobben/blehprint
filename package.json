@@ -8,16 +8,17 @@
   ],
   "scripts": {
     "update": "bun update",
-    "dev:web": "bun --cwd workers/web dev",
-    "build:web": "bun --cwd workers/web build",
-    "deploy:web": "bun --cwd workers/web build && bun --cwd workers/web deploy",
+    "dev:web": "bun run --cwd workers/web dev",
+    "build:web": "bun run --cwd workers/web build",
+    "deploy:web": "bun run --cwd workers/web build && bun run --cwd workers/web deploy",
     "deploy:all": "bun run deploy:web && bun run deploy:database",
-    "db:generate": "bun run db:generate --cwd packages/database",
-    "db:migrate:remote": "bun --cwd packages/database run db:migrate:remote",
-    "db:migrate:local": "bun --cwd packages/database run db:migrate:local",
-    "db:studio": "bun --cwd packages/database run db:studio",
-    "typecheck": "bun --cwd workers/web typecheck && bun --cwd packages/database typecheck",
-    "cf:typegen": "bun --cwd workers/web cf:typegen && bun --cwd packages/database cf:typegen"
+    "db:generate": "bun run --cwd packages/database db:generate",
+    "db:migrate:remote": "bun run --cwd packages/database db:migrate:remote",
+    "db:migrate:local": "bun run --cwd packages/database db:migrate:local",
+    "db:studio": "bun run --cwd packages/database db:studio",
+    "typecheck": "bun run --cwd workers/web typecheck && bun run --cwd packages/database typecheck",
+    "cf:typegen": "bun run --cwd workers/web cf:typegen && bun run --cwd packages/database cf:typegen",
+    "ui:add": "bunx --cwd packages/ui shadcn@latest add"
   },
   "dependencies": {
     "zod": "^3.23.8"
