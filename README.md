@@ -2,6 +2,53 @@
 
 A modern full-stack TypeScript monorepo template for building applications on Cloudflare's edge platform.
 
+## Use This Template
+
+### 1. Clone and rename
+
+```bash
+bunx degit gielcobben/blehprint my-app
+cd my-app
+bun run rename my-app
+```
+
+This downloads the template (without git history) and renames all packages from `@blehprint/*` to `@my-app/*`.
+
+### 2. Install dependencies
+
+```bash
+bun install
+```
+
+### 3. Set up the database
+
+```bash
+bunx wrangler d1 create my-app-database
+```
+
+Copy the `database_id` to `packages/database/wrangler.jsonc` and `workers/web/wrangler.jsonc`.
+
+### 4. Configure authentication
+
+```bash
+cp workers/web/.dev.vars.example workers/web/.dev.vars
+openssl rand -base64 32  # Add output to .dev.vars as BETTER_AUTH_SECRET
+```
+
+### 5. Run migrations
+
+```bash
+bun run db:migrate:local
+```
+
+### 6. Start development
+
+```bash
+bun run dev:web
+```
+
+Open [http://localhost:3000](http://localhost:3000).
+
 ## Tech Stack
 
 - **Runtime:** [Bun](https://bun.sh) — Fast all-in-one JavaScript runtime
@@ -20,45 +67,6 @@ A modern full-stack TypeScript monorepo template for building applications on Cl
 | [`@blehprint/ui`](./packages/ui)             | shadcn/ui component library | [README](./packages/ui/readme.md)       |
 | [`workers/web`](./workers/web)               | Main web application        | [README](./workers/web/README.md)       |
 
-## Getting Started
-
-### 1. Install dependencies
-
-```bash
-bun install
-```
-
-### 2. Set up the database
-
-Create a D1 database and update the config:
-
-```bash
-bunx wrangler d1 create blehprint-database
-```
-
-Copy the `database_id` to `packages/database/wrangler.jsonc` and `workers/web/wrangler.jsonc`.
-
-### 3. Configure authentication
-
-```bash
-cp workers/web/.dev.vars.example workers/web/.dev.vars
-openssl rand -base64 32  # Add output to .dev.vars as BETTER_AUTH_SECRET
-```
-
-### 4. Run migrations
-
-```bash
-bun run db:migrate:local
-```
-
-### 5. Start development
-
-```bash
-bun run dev:web
-```
-
-Open [http://localhost:3000](http://localhost:3000).
-
 ## Scripts
 
 | Command                     | Description                    |
@@ -72,6 +80,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | `bun run db:migrate:remote` | Apply migrations to production |
 | `bun run db:studio`         | Open Drizzle Studio            |
 | `bun run typecheck`         | Run TypeScript checks          |
+| `bun run rename <name>`     | Rename the project (one-time)  |
 
 ## Quick Reference
 
