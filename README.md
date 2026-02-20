@@ -192,6 +192,10 @@ blehprint/
 └── .wrangler/state/    # Local D1 state (gitignored)
 ```
 
+## Author
+
+[Giel Cobben](https://github.com/gielcobben)
+
 ## License
 
-MIT
+This project is open source and available under the [MIT License](./LICENSE).
