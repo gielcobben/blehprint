@@ -1,5 +1,8 @@
 {
   "mcpServers": {
+    "cloudflare-api": {
+      "url": "https://mcp.cloudflare.com/mcp"
+    },
     "react-router Docs": {
       "url": "https://gitmcp.io/remix-run/react-router"
     },
