@@ -1,8 +1,23 @@
-# Blehprint
+# Blehprint — Separate API
 
-A modern full-stack TypeScript monorepo template for building applications on Cloudflare's edge platform.
+A modern full-stack TypeScript monorepo template for building applications on Cloudflare's edge platform — with the API running as its own dedicated Worker.
 
 **Auth, database, UI components, dark mode** — all wired up and ready to deploy.
+
+> **Looking for the single-worker version?** Use the [main branch](https://github.com/gielcobben/blehprint).
+
+## What's different
+
+This variant splits the backend into two Cloudflare Workers:
+
+| Worker | Description |
+| --- | --- |
+| `workers/web` | React Router app — handles UI and SSR |
+| `workers/api` | Hono API — handles all backend requests |
+
+The web worker forwards API calls to the API worker via [Service Bindings](https://developers.cloudflare.com/workers/runtime-apis/bindings/service-bindings/), keeping them on the same edge network without a round trip through the public internet.
+
+Use this if you want a clear separation between your frontend and backend, or plan to grow the API independently.
 
 ## Use This Template
 
@@ -11,7 +26,7 @@ A modern full-stack TypeScript monorepo template for building applications on Cl
 ### 1. Clone and rename
 
 ```bash
-bunx degit gielcobben/blehprint my-app
+bunx degit gielcobben/blehprint#separate-api my-app
 cd my-app
 bun run rename my-app
 ```
@@ -63,15 +78,18 @@ Open [http://localhost:3000](http://localhost:3000).
 | [`@blehprint/auth`](./packages/auth)         | BetterAuth authentication   | [README](./packages/auth/readme.md)     |
 | [`@blehprint/database`](./packages/database) | Drizzle ORM + D1 database   | [README](./packages/database/readme.md) |
 | [`@blehprint/ui`](./packages/ui)             | shadcn/ui component library | [README](./packages/ui/readme.md)       |
-| [`workers/web`](./workers/web)               | Main web application        | [README](./workers/web/README.md)       |
+| [`workers/web`](./workers/web)               | React Router web app        | [README](./workers/web/README.md)       |
+| [`workers/api`](./workers/api)               | Hono API worker             |                                         |
 
 ## Scripts
 
 | Command                     | Description                    |
 | --------------------------- | ------------------------------ |
-| `bun run dev:web`           | Start development server       |
-| `bun run build:web`         | Build for production           |
-| `bun run deploy:web`        | Build and deploy to Workers    |
+| `bun run dev:web`           | Start web worker dev server    |
+| `bun run dev:api`           | Start API worker dev server    |
+| `bun run build:web`         | Build web for production       |
+| `bun run deploy:web`        | Deploy web worker              |
+| `bun run deploy:api`        | Deploy API worker              |
 | `bun run deploy:all`        | Deploy everything              |
 | `bun run db:generate`       | Generate Drizzle migrations    |
 | `bun run db:migrate:local`  | Apply migrations locally       |
@@ -170,7 +188,7 @@ function ThemeToggle() {
 bunx wrangler d1 create my-app-database
 ```
 
-Copy the `database_id` into `packages/database/wrangler.jsonc` and `workers/web/wrangler.jsonc`.
+Copy the `database_id` into `packages/database/wrangler.jsonc`, `workers/web/wrangler.jsonc`, and `workers/api/wrangler.jsonc`.
 
 ### 2. Run remote migrations
 
@@ -200,7 +218,8 @@ blehprint/
 │   ├── database/       # @blehprint/database
 │   └── ui/             # @blehprint/ui
 ├── workers/
-│   └── web/            # Main application
+│   ├── web/            # React Router web app
+│   └── api/            # Hono API worker
 └── .wrangler/state/    # Local D1 state (gitignored)
 ```
 
