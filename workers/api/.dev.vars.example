@@ -1,0 +1,5 @@
+# cp workers/api/.dev.vars.example workers/api/.dev.vars
+
+# BetterAuth secret key for encryption
+# Generate with: openssl rand -base64 32
+BETTER_AUTH_SECRET=your-secret-key-here

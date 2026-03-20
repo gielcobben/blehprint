@@ -1,4 +1,2 @@
-# BetterAuth secret key for encryption
-# Generate with: openssl rand -base64 32
-BETTER_AUTH_SECRET=your-secret-key-here
-
+# 1. cp workers/web/.dev.vars.example workers/web/.dev.vars
+# 2. Add environment variables for the web worker here
