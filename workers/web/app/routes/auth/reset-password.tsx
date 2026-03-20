@@ -1,11 +1,10 @@
 import { parseWithZod } from "@conform-to/zod/v4";
-import { env } from "cloudflare:workers";
 import { redirect } from "react-router";
 import {
   ResetPasswordPage,
   resetPasswordSchema,
 } from "~/pages/auth/reset-password";
-import { getAuthErrorMessageAsync, getSession } from "~/utils/auth.server";
+import { getErrorMessage, getSession, resetPassword } from "~/utils/auth.server";
 import type { Route } from "./+types/reset-password";
 
 export function meta(_: Route.MetaArgs) {
@@ -39,28 +38,18 @@ export async function action({ request }: Route.ActionArgs) {
   }
 
   try {
-    const response = await fetch(`${env.API_URL}/v1/auth/reset-password`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        cookie: request.headers.get("cookie") ?? "",
-      },
-      body: JSON.stringify(submission.value),
-    });
+    const response = await resetPassword(request, submission.value);
 
     if (response.ok) {
       return redirect("/auth/login");
     }
 
+    const message = await getErrorMessage(response, "Unable to reset password. Please try again.");
+    return submission.reply({ formErrors: [message] });
+  } catch {
     return submission.reply({
       formErrors: ["Unable to reset password. Please try again."],
     });
-  } catch (error) {
-    const message = await getAuthErrorMessageAsync(
-      error,
-      "Unable to reset password. Please try again."
-    );
-    return submission.reply({ formErrors: [message] });
   }
 }
 

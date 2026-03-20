@@ -42,22 +42,28 @@ bun install
 ### 3. Configure authentication
 
 ```bash
-cp workers/web/.dev.vars.example workers/web/.dev.vars
+cp workers/api/.dev.vars.example workers/api/.dev.vars
 openssl rand -base64 32
 ```
 
-Add the output to `.dev.vars` as `BETTER_AUTH_SECRET`.
+Add the output to `workers/api/.dev.vars` as `BETTER_AUTH_SECRET`.
 
-### 4. Run migrations
+### 4. Generate types
+
+```bash
+bun run cf:typegen
+```
+
+### 5. Run migrations
 
 ```bash
 bun run db:migrate:local
 ```
 
-### 5. Start development
+### 6. Start development
 
 ```bash
-bun run dev:web
+bun run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
@@ -83,20 +89,22 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Scripts
 
-| Command                     | Description                    |
-| --------------------------- | ------------------------------ |
-| `bun run dev:web`           | Start web worker dev server    |
-| `bun run dev:api`           | Start API worker dev server    |
-| `bun run build:web`         | Build web for production       |
-| `bun run deploy:web`        | Deploy web worker              |
-| `bun run deploy:api`        | Deploy API worker              |
-| `bun run deploy:all`        | Deploy everything              |
-| `bun run db:generate`       | Generate Drizzle migrations    |
-| `bun run db:migrate:local`  | Apply migrations locally       |
-| `bun run db:migrate:remote` | Apply migrations to production |
-| `bun run db:studio`         | Open Drizzle Studio            |
-| `bun run typecheck`         | Run TypeScript checks          |
-| `bun run rename <name>`     | Rename the project (one-time)  |
+| Command                     | Description                         |
+| --------------------------- | ----------------------------------- |
+| `bun run dev`               | Start both workers in dev mode      |
+| `bun run dev:web`           | Start web worker dev server         |
+| `bun run dev:api`           | Start API worker dev server         |
+| `bun run build:web`         | Build web for production            |
+| `bun run deploy:web`        | Deploy web worker                   |
+| `bun run deploy:api`        | Deploy API worker                   |
+| `bun run deploy:all`        | Deploy everything                   |
+| `bun run cf:typegen`        | Generate Cloudflare worker types    |
+| `bun run db:generate`       | Generate Drizzle migrations         |
+| `bun run db:migrate:local`  | Apply migrations locally            |
+| `bun run db:migrate:remote` | Apply migrations to production      |
+| `bun run db:studio`         | Open Drizzle Studio                 |
+| `bun run typecheck`         | Run TypeScript checks               |
+| `bun run rename <name>`     | Rename the project (one-time)       |
 
 ## Quick Reference
 
@@ -199,7 +207,10 @@ bun run db:migrate:remote
 ### 3. Set production secrets
 
 ```bash
+# Run these from workers/api
 bunx wrangler secret put BETTER_AUTH_SECRET
+bunx wrangler secret put TRUSTED_ORIGINS   # e.g. https://my-app.com
+bunx wrangler secret put WEB_URL           # e.g. https://my-app.com
 ```
 
 ### 4. Deploy

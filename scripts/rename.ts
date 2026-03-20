@@ -78,5 +78,6 @@ console.log("  1. bun install");
 console.log("  2. cp workers/api/.dev.vars.example workers/api/.dev.vars");
 console.log("  3. openssl rand -base64 32");
 console.log("     Add the output to workers/api/.dev.vars as BETTER_AUTH_SECRET");
-console.log("  4. bun run db:migrate:local");
-console.log("  5. bun run dev");
+console.log("  4. bun run cf:typegen");
+console.log("  5. bun run db:migrate:local");
+console.log("  6. bun run dev");

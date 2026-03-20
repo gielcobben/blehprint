@@ -1,8 +1,7 @@
 import { parseWithZod } from "@conform-to/zod/v4";
-import { env } from "cloudflare:workers";
 import { redirect } from "react-router";
 import type { Route } from "./+types/signup";
-import { getAuthErrorMessageAsync, getSession } from "~/utils/auth.server";
+import { getErrorMessage, getSession, signUpEmail } from "~/utils/auth.server";
 import { SignUpPage, signupSchema } from "~/pages/auth/signup";
 
 export function meta(_: Route.MetaArgs) {
@@ -36,16 +35,13 @@ export async function action({ request }: Route.ActionArgs) {
   }
 
   try {
-    const response = await fetch(`${env.API_URL}/v1/auth/sign-up/email`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        cookie: request.headers.get("cookie") ?? "",
-      },
-      body: JSON.stringify(submission.value),
+    const response = await signUpEmail(request, {
+      name: submission.value.name,
+      email: submission.value.email,
+      password: submission.value.password,
     });
 
-    if (response.ok) {
+    if (response.ok || response.status === 403) {
       return redirect("/auth/check-email", {
         headers: {
           "Set-Cookie": response.headers.get("Set-Cookie") || "",
@@ -53,15 +49,12 @@ export async function action({ request }: Route.ActionArgs) {
       });
     }
 
-    return submission.reply({
-      formErrors: ["Unable to sign in. Please try again."],
-    });
-  } catch (error) {
-    const message = await getAuthErrorMessageAsync(
-      error,
-      "Unable to sign up. Please try again."
-    );
+    const message = await getErrorMessage(response, "Unable to sign up. Please try again.");
     return submission.reply({ formErrors: [message] });
+  } catch {
+    return submission.reply({
+      formErrors: ["Unable to sign up. Please try again."],
+    });
   }
 }
 

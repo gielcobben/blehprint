@@ -3,3 +3,9 @@
 # BetterAuth secret key for encryption
 # Generate with: openssl rand -base64 32
 BETTER_AUTH_SECRET=your-secret-key-here
+
+# Comma-separated origins allowed to make auth requests
+TRUSTED_ORIGINS=http://localhost:3000
+
+# Web app URL (used for email verification/reset links)
+WEB_URL=http://localhost:3000

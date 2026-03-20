@@ -1,7 +1,7 @@
-import { env } from "cloudflare:workers";
 import { VerifyEmailPage } from "~/pages/auth/verify-email";
 import type { Route } from "./+types/verify-email";
 import { redirect } from "react-router";
+import { verifyEmail } from "~/utils/auth.server";
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Verify your email" }];
@@ -14,10 +14,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     throw redirect("/auth/signup");
   }
 
-  const response = await fetch(
-    `${env.API_URL}/v1/auth/verify-email?token=${token}`,
-    { headers: { cookie: request.headers.get("cookie") ?? "" } }
-  );
+  const response = await verifyEmail(token);
 
   if (response.ok) {
     return redirect("/auth/login");

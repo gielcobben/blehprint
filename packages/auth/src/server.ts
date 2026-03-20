@@ -12,10 +12,22 @@ export type SessionData = Awaited<
 /**
  * Create a BetterAuth instance configured for Cloudflare D1
  */
-export function createAuth(d1: D1Database, secret: string) {
+export function createAuth(
+  d1: D1Database,
+  secret: string,
+  options?: { trustedOrigins?: string[]; webUrl?: string },
+) {
   const db = database(d1);
 
+  function toWebUrl(apiUrl: string, webPath: string): string {
+    if (!options?.webUrl) return apiUrl;
+    const parsed = new URL(apiUrl);
+    return `${options.webUrl}${webPath}?${parsed.searchParams.toString()}`;
+  }
+
   return betterAuth({
+    basePath: "/v1/auth",
+    trustedOrigins: options?.trustedOrigins ?? [],
     database: drizzleAdapter(db, {
       provider: "sqlite",
       schema: {
@@ -26,30 +38,26 @@ export function createAuth(d1: D1Database, secret: string) {
     emailAndPassword: {
       enabled: true,
       requireEmailVerification: true,
-      sendResetPassword: async function ({ user, url, token }, request) {
+      sendResetPassword: async function ({ user, url }) {
+        const webResetUrl = toWebUrl(url, "/auth/reset-password");
         console.log("=== Password Reset ===");
         console.log("User:", user.email);
-        console.log("Reset URL:", url);
-        console.log("Token:", token);
+        console.log("URL:", webResetUrl);
         console.log("====================");
       },
     },
     emailVerification: {
-      sendVerificationEmail: async ({ user, url, token }, request) => {
+      sendVerificationEmail: async ({ user, url }) => {
+        const webVerifyUrl = toWebUrl(url, "/auth/verify-email");
         console.log("=== Email Verification ===");
         console.log("User:", user.email);
-        console.log("Verification URL:", url);
-        console.log("Token:", token);
+        console.log("URL:", webVerifyUrl);
         console.log("====================");
       },
     },
     session: {
       expiresIn: 60 * 60 * 24 * 7, // 7 days
       updateAge: 60 * 60 * 24, // 1 day
-      // cookieCache: {
-      //   enabled: true,
-      //   maxAge: 60 * 5, // 5 minutes
-      // },
     },
     plugins: [],
   });

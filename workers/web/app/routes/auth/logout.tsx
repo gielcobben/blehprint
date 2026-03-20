@@ -1,6 +1,5 @@
-import { env } from "cloudflare:workers";
 import { redirect } from "react-router";
-import { getSession } from "~/utils/auth.server";
+import { getSession, signOut } from "~/utils/auth.server";
 import type { Route } from "./+types/logout";
 
 export function meta(_: Route.MetaArgs) {
@@ -14,10 +13,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     return redirect("/auth/login");
   }
 
-  const response = await fetch(`${env.API_URL}/v1/auth/sign-out`, {
-    method: "POST",
-    headers: { cookie: request.headers.get("cookie") ?? "" },
-  });
+  const response = await signOut(request);
 
   if (response.ok) {
     return redirect("/auth/login", {
