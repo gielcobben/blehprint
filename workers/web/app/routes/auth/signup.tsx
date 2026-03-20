@@ -1,12 +1,9 @@
+import { parseWithZod } from "@conform-to/zod/v4";
+import { env } from "cloudflare:workers";
 import { redirect } from "react-router";
 import type { Route } from "./+types/signup";
-import {
-  getAuthErrorMessageAsync,
-  getSession,
-  serverAuth,
-} from "~/utils/auth.server";
+import { getAuthErrorMessageAsync, getSession } from "~/utils/auth.server";
 import { SignUpPage, signupSchema } from "~/pages/auth/signup";
-import { parseWithZod } from "@conform-to/zod/v4";
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Sign Up" }];
@@ -39,12 +36,13 @@ export async function action({ request }: Route.ActionArgs) {
   }
 
   try {
-    const auth = serverAuth();
-    const response = await auth.api.signUpEmail({
-      body: {
-        ...submission.value,
+    const response = await fetch(`${env.API_URL}/v1/auth/sign-up/email`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        cookie: request.headers.get("cookie") ?? "",
       },
-      asResponse: true,
+      body: JSON.stringify(submission.value),
     });
 
     if (response.ok) {

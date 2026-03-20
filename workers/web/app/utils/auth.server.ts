@@ -1,24 +1,11 @@
-import {
-  createAuth as createAuthInstance,
-  getSession as getSessionAuth,
-} from "@blehprint/auth";
 import { env } from "cloudflare:workers";
 
-/**
- * Create a BetterAuth instance for the server
- * @returns The BetterAuth instance for the server
- */
-export function serverAuth() {
-  return createAuthInstance(env.DB, env.BETTER_AUTH_SECRET);
-}
-
-/**
- * Get the current session from a request
- * @param request - The request to get the session from
- * @returns The current session or null if not authenticated
- */
-export function getSession(request: Request) {
-  return getSessionAuth(request, env.DB, env.BETTER_AUTH_SECRET);
+export async function getSession(request: Request) {
+  const response = await fetch(`${env.API_URL}/v1/auth/get-session`, {
+    headers: { cookie: request.headers.get("cookie") ?? "" },
+  });
+  if (!response.ok) return null;
+  return response.json() as Promise<{ session: unknown; user: unknown } | null>;
 }
 
 /**

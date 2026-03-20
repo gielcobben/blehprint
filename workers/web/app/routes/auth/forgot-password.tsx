@@ -1,11 +1,8 @@
+import { parseWithZod } from "@conform-to/zod/v4";
+import { env } from "cloudflare:workers";
 import { redirect } from "react-router";
 import type { Route } from "./+types/forgot-password";
-import {
-  getAuthErrorMessageAsync,
-  getSession,
-  serverAuth,
-} from "~/utils/auth.server";
-import { parseWithZod } from "@conform-to/zod/v4";
+import { getAuthErrorMessageAsync, getSession } from "~/utils/auth.server";
 import {
   forgotPasswordSchema,
   ForgotPasswordPage,
@@ -36,12 +33,13 @@ export async function action({ request }: Route.ActionArgs) {
   }
 
   try {
-    const auth = serverAuth();
-    const response = await auth.api.requestPasswordReset({
-      body: {
-        ...submission.value,
+    const response = await fetch(`${env.API_URL}/v1/auth/forget-password`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        cookie: request.headers.get("cookie") ?? "",
       },
-      asResponse: true,
+      body: JSON.stringify(submission.value),
     });
 
     if (response.ok) {

@@ -9,11 +9,5 @@
   "placement": { "mode": "off" },
   "observability": { "enabled": true },
   "assets": { "directory": "./build/client" },
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_id": "00000000-0000-0000-0000-000000000000",
-      "database_name": "blehprint-database"
-    }
-  ]
+  "vars": { "API_URL": "http://localhost:8787" }
 }

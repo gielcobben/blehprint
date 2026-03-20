@@ -1,11 +1,8 @@
 import { parseWithZod } from "@conform-to/zod/v4";
+import { env } from "cloudflare:workers";
 import { redirect } from "react-router";
 import { LoginPage, loginSchema } from "~/pages/auth/login";
-import {
-  getAuthErrorMessageAsync,
-  getSession,
-  serverAuth,
-} from "~/utils/auth.server";
+import { getAuthErrorMessageAsync, getSession } from "~/utils/auth.server";
 import type { Route } from "./+types/login";
 
 export function meta(_: Route.MetaArgs) {
@@ -31,14 +28,13 @@ export async function action({ request }: Route.ActionArgs) {
   }
 
   try {
-    const auth = serverAuth();
-    const response = await auth.api.signInEmail({
-      body: {
-        ...submission.value,
-        // callbackURL: '/',
-        // rememberMe: true,
+    const response = await fetch(`${env.API_URL}/v1/auth/sign-in/email`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        cookie: request.headers.get("cookie") ?? "",
       },
-      asResponse: true,
+      body: JSON.stringify(submission.value),
     });
 
     if (response.ok) {
