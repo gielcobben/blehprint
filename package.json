@@ -21,7 +21,7 @@
     "db:migrate:local": "bun run --cwd packages/database db:migrate:local",
     "db:studio": "bun run --cwd packages/database db:studio",
     "typecheck": "bun run --cwd workers/api typecheck && bun run --cwd workers/web typecheck && bun run --cwd packages/database typecheck",
-    "cf:typegen": "bun run --cwd workers/api cf:typegen && bun run --cwd workers/web cf:typegen && bun run --cwd packages/database cf:typegen",
+    "cf:typegen": "bun run --cwd workers/api cf:typegen && bun run --cwd workers/web cf:typegen",
     "ui:add": "bunx --cwd packages/ui shadcn@latest add",
     "rename": "bun run scripts/rename.ts"
   },
