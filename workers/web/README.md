@@ -1,149 +1,85 @@
-# Web Worker
+# Web worker
 
-The main web application for Blehprint, built with React Router v7 and deployed to Cloudflare Workers.
-
-## Tech Stack
-
-- **Framework:** [React Router v7](https://reactrouter.com) — Full-stack React framework with SSR
-- **Runtime:** [Cloudflare Workers](https://workers.cloudflare.com) — Edge-first serverless compute
-- **UI:** [@blehprint/ui](../../packages/ui) — Shared component library
-- **Styling:** [Tailwind CSS v4](https://tailwindcss.com)
-
-## Project Structure
+[React Router 8](https://reactrouter.com) in framework mode, server-rendered on Cloudflare Workers via the Cloudflare Vite plugin.
 
 ```
 workers/web/
 ├── app/
-│   ├── routes/          # Route modules (loaders, actions, meta)
-│   ├── pages/           # Pure React page components
-│   ├── utils/           # Shared utilities
-│   ├── root.tsx         # Root layout component
-│   ├── routes.ts        # Route configuration
-│   ├── app.css          # Global styles
-│   └── entry.*.ts       # Entry points (client, server, worker)
-├── public/              # Static assets
-├── wrangler.jsonc       # Cloudflare Workers config
-└── vite.config.ts       # Vite configuration
+│   ├── routes/          # loaders, actions, meta, thin default exports
+│   ├── pages/           # plain React components, props in, no server code
+│   ├── utils/
+│   │   ├── auth.server.ts   # api(), post(), getSession(), requireSession(), redirectWithCookies()
+│   │   ├── redirect.ts      # safeRedirect()
+│   │   ├── theme.server.ts  # theme cookie
+│   │   └── form.ts          # useIsPending()
+│   ├── context.ts       # cloudflareContext for loaders that need ctx.waitUntil
+│   ├── entry.worker.ts  # Worker fetch handler
+│   ├── root.tsx         # document, theme provider, error boundary
+│   ├── routes.ts        # route table
+│   └── app.css          # Tailwind entry, imports @blehprint/ui styles
+├── test/                # Vitest unit tests (node)
+├── wrangler.jsonc       # service binding to the API worker
+└── vite.config.ts       # cloudflare() with auxiliaryWorkers, tailwindcss(), reactRouter()
 ```
 
-### `routes/` — Server Logic & Data Flow
+## Routes and pages
 
-Route files handle all the heavy lifting:
-
-- **`loader`** — Server-side data fetching, authentication checks, redirects
-- **`action`** — Form submissions, mutations, API calls
-- **`meta`** — Page title and SEO metadata
-- **Default export** — Thin wrapper that passes loader data to page components
+A route file does the server work and hands props to a page:
 
 ```tsx
 // routes/home.tsx
-import { HomePage } from "../pages/home";
-
-export function meta() {
-  return [{ title: "Home" }];
-}
-
 export async function loader({ request }: Route.LoaderArgs) {
-  const session = await getSession(request);
-  return { session };
+  return { session: await getSession(request) };
 }
-
 export default function HomeRoute({ loaderData }: Route.ComponentProps) {
   return <HomePage session={loaderData.session} />;
 }
 ```
 
-### `pages/` — Pure React Components
-
-Page files contain only presentational React components:
-
-- **No server code** — No loaders, actions, or server imports
-- **Props-driven** — Receive all data via props from route files
-- **Focused on UI** — Layout, styling, and user interactions
-- **Easily testable** — Can be rendered in isolation with mock props
-
 ```tsx
 // pages/home.tsx
-export function HomePage({ session }: { session: SessionData }) {
-  return (
-    <main>
-      <h1>Welcome, {session?.user.name ?? "Guest"}</h1>
-    </main>
-  );
-}
+export function HomePage({ session }: { session: Session | null }) { … }
 ```
 
-## Development
+Pages never import server code, so they can be rendered and tested in isolation. Form schemas (Zod) live next to the page that renders the form and are shared with the route's action.
 
-Start the development server:
+## Talking to the API
 
-```bash
-# From the monorepo root
-bun run dev:web
+`app/utils/auth.server.ts` wraps the service binding:
 
-# Or from this directory
-bun run dev
+```ts
+const res = await post(request, "/v1/auth/sign-in/email", { email, password });
+if (!res.ok) return submission.reply({ formErrors: [await errorMessage(res)] });
+return redirectWithCookies("/", res); // copies Set-Cookie from the API to the browser
 ```
 
-The app will be available at [http://localhost:3000](http://localhost:3000).
+Bindings come from `import { env } from "cloudflare:workers"`. For `ctx.waitUntil`, read `context.get(cloudflareContext)` in a loader.
 
-## Using UI Components
+## Auth pages
 
-Import components from the shared UI package:
+| Path                          | Purpose                                    |
+| ----------------------------- | ------------------------------------------ |
+| `/auth/login`                 | Accepts `?redirectTo=/path` (same-site only) |
+| `/auth/signup`                | Then `/auth/check-email?for=verify`        |
+| `/auth/verify-email?token=`   | Link from the email; redirects to login    |
+| `/auth/forgot-password`       | Then `/auth/check-email?for=reset`         |
+| `/auth/reset-password/:token` | Link from the email                        |
+| `/auth/logout`                | Clears the session                         |
+
+## Scripts
+
+| Command             | What it does                                                  |
+| ------------------- | ------------------------------------------------------------- |
+| `bun run dev`       | Vite dev server with the API as an auxiliary worker           |
+| `bun run test`      | Vitest unit tests                                             |
+| `bun run typecheck` | `wrangler types`, `react-router typegen`, then `tsc`          |
+| `bun run build`     | Production build to `build/`                                  |
+| `bun run deploy`    | Build and `wrangler deploy`                                   |
+
+## Theme
+
+`remix-themes` with a cookie. Toggle from any component:
 
 ```tsx
-import { Button } from "@blehprint/ui/components/button";
-import { cn } from "@blehprint/ui/lib/utils";
-
-export function MyPage() {
-  return (
-    <div className={cn("container", "py-8")}>
-      <Button>Click me</Button>
-    </div>
-  );
-}
+const [theme, setTheme] = useTheme();
 ```
-
-The global styles are already imported in `app/app.css`.
-
-## Building for Production
-
-```bash
-bun run build
-```
-
-## Deployment
-
-Deploy to Cloudflare Workers:
-
-```bash
-# From the monorepo root
-bun run deploy:web
-
-# Or from this directory
-bun run deploy
-```
-
-## Environment Variables
-
-Copy the example environment file:
-
-```bash
-cp .dev.vars.example .dev.vars
-```
-
-Required variables:
-
-| Variable | Description |
-|----------|-------------|
-| `BETTER_AUTH_SECRET` | Secret key for BetterAuth sessions |
-
-For production, set secrets using Wrangler:
-
-```bash
-bunx wrangler secret put BETTER_AUTH_SECRET
-```
-
-## License
-
-MIT

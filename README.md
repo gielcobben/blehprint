@@ -1,243 +1,139 @@
 # Blehprint — Separate API
 
-A modern full-stack TypeScript monorepo template for building applications on Cloudflare's edge platform — with the API running as its own dedicated Worker.
+A full-stack TypeScript monorepo template for Cloudflare Workers, with the API running as its own Worker.
 
-**Auth, database, UI components, dark mode** — all wired up and ready to deploy.
+**Auth, database, UI components, dark mode, tests** — wired up and ready to deploy.
 
-> **Looking for the single-worker version?** Use the [main branch](https://github.com/gielcobben/blehprint).
+> Prefer a single worker? Use the [main branch](https://github.com/gielcobben/blehprint).
 
-## What's different
+## How it fits together
 
-This variant splits the backend into two Cloudflare Workers:
+| Worker         | Role                                                                          |
+| -------------- | ----------------------------------------------------------------------------- |
+| `workers/web`  | React Router 8 app with SSR. Renders pages, handles forms, holds no secrets.  |
+| `workers/api`  | Hono API. Owns the D1 database and mounts BetterAuth at `/v1/auth/*`.         |
 
-| Worker | Description |
-| --- | --- |
-| `workers/web` | React Router app — handles UI and SSR |
-| `workers/api` | Hono API — handles all backend requests |
+The web worker calls the API through a [service binding](https://developers.cloudflare.com/workers/runtime-apis/bindings/service-bindings/): no public URL, no CORS, no extra hop. Locally, one `bun run dev` starts both workers.
 
-The web worker forwards API calls to the API worker via [Service Bindings](https://developers.cloudflare.com/workers/runtime-apis/bindings/service-bindings/), keeping them on the same edge network without a round trip through the public internet.
+## Get started
 
-Use this if you want a clear separation between your frontend and backend, or plan to grow the API independently.
-
-## Use This Template
-
-> **Prerequisites:** [Bun](https://bun.sh) and a [Cloudflare account](https://dash.cloudflare.com/sign-up)
-
-### 1. Clone and rename
+Prerequisites: [Bun](https://bun.sh) and a [Cloudflare account](https://dash.cloudflare.com/sign-up).
 
 ```bash
 bunx degit gielcobben/blehprint#separate-api my-app
 cd my-app
-bun run rename my-app
-```
-
-[degit](https://github.com/Rich-Harris/degit) downloads the template without git history, giving you a clean slate. The rename script updates all packages from `@blehprint/*` to `@my-app/*`.
-
-### 2. Install dependencies
-
-```bash
+bun run rename my-app   # @blehprint/* → @my-app/*, then removes itself
 bun install
+bun run setup           # .dev.vars with a fresh secret, generated types, local migrations
+bun run dev             # http://localhost:3000
 ```
 
-### 3. Configure authentication
-
-```bash
-cp workers/api/.dev.vars.example workers/api/.dev.vars
-openssl rand -base64 32
-```
-
-Add the output to `workers/api/.dev.vars` as `BETTER_AUTH_SECRET`.
-
-### 4. Generate types
-
-```bash
-bun run cf:typegen
-```
-
-### 5. Run migrations
-
-```bash
-bun run db:migrate:local
-```
-
-### 6. Start development
-
-```bash
-bun run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000).
-
-## Tech Stack
-
-- **Runtime:** [Bun](https://bun.sh) — Fast all-in-one JavaScript runtime
-- **Framework:** [React Router v7](https://reactrouter.com) — Full-stack React with SSR
-- **Hosting:** [Cloudflare Workers](https://workers.cloudflare.com) — Edge-first serverless
-- **Database:** [Cloudflare D1](https://developers.cloudflare.com/d1/) + [Drizzle ORM](https://orm.drizzle.team)
-- **Auth:** [BetterAuth](https://better-auth.com) — Modern TypeScript authentication
-- **Styling:** [Tailwind CSS v4](https://tailwindcss.com) + [shadcn/ui](https://ui.shadcn.com)
-
-## Packages
-
-| Package                                      | Description                 | Docs                                    |
-| -------------------------------------------- | --------------------------- | --------------------------------------- |
-| [`@blehprint/auth`](./packages/auth)         | BetterAuth authentication   | [README](./packages/auth/readme.md)     |
-| [`@blehprint/database`](./packages/database) | Drizzle ORM + D1 database   | [README](./packages/database/readme.md) |
-| [`@blehprint/ui`](./packages/ui)             | shadcn/ui component library | [README](./packages/ui/readme.md)       |
-| [`workers/web`](./workers/web)               | React Router web app        | [README](./workers/web/README.md)       |
-| [`workers/api`](./workers/api)               | Hono API worker             |                                         |
+Sign up, then look at the terminal: until you plug in an email provider, verification and reset links are printed there as `[auth] …`.
 
 ## Scripts
 
-| Command                     | Description                         |
-| --------------------------- | ----------------------------------- |
-| `bun run dev`               | Start both workers in dev mode      |
-| `bun run dev:web`           | Start web worker dev server         |
-| `bun run dev:api`           | Start API worker dev server         |
-| `bun run build:web`         | Build web for production            |
-| `bun run deploy:web`        | Deploy web worker                   |
-| `bun run deploy:api`        | Deploy API worker                   |
-| `bun run deploy:all`        | Deploy everything                   |
-| `bun run cf:typegen`        | Generate Cloudflare worker types    |
-| `bun run db:generate`       | Generate Drizzle migrations         |
-| `bun run db:migrate:local`  | Apply migrations locally            |
-| `bun run db:migrate:remote` | Apply migrations to production      |
-| `bun run db:studio`         | Open Drizzle Studio                 |
-| `bun run typecheck`         | Run TypeScript checks               |
-| `bun run rename <name>`     | Rename the project (one-time)       |
+| Command                     | What it does                                                   |
+| --------------------------- | -------------------------------------------------------------- |
+| `bun run dev`               | Web and API together, with hot reload                          |
+| `bun run typecheck`         | Regenerates worker types, then `tsc` in every workspace        |
+| `bun run test`              | API tests in workerd against a real D1, web unit tests         |
+| `bun run check` / `format`  | Biome lint and format                                          |
+| `bun run build`             | Production build of both workers                               |
+| `bun run deploy`            | Deploy the API, then the web worker                            |
+| `bun run db:generate`       | Create a migration from schema changes                         |
+| `bun run db:migrate:local`  | Apply migrations to the local D1                               |
+| `bun run db:migrate:remote` | Apply migrations to production                                 |
+| `bun run db:studio`         | Drizzle Studio on the local database                           |
+| `bun run ui:add <name>`     | Add a shadcn/ui component to `packages/ui`                     |
 
-## Quick Reference
+## Tech stack
 
-### Authentication
+- [Bun](https://bun.sh) workspaces
+- [React Router 8](https://reactrouter.com) framework mode on [Cloudflare Workers](https://workers.cloudflare.com), built with the [Cloudflare Vite plugin](https://developers.cloudflare.com/workers/vite-plugin/)
+- [Hono](https://hono.dev) for the API
+- [Cloudflare D1](https://developers.cloudflare.com/d1/) with [Drizzle ORM](https://orm.drizzle.team)
+- [BetterAuth](https://better-auth.com) email and password auth with verification and reset
+- [Tailwind CSS v4](https://tailwindcss.com) and [shadcn/ui](https://ui.shadcn.com) on [Base UI](https://base-ui.com)
+- [Conform](https://conform.guide) and [Zod](https://zod.dev) for forms
+- [Vitest](https://vitest.dev) with the [Cloudflare Vitest plugin](https://developers.cloudflare.com/workers/testing/vitest-integration/)
+- [Biome](https://biomejs.dev) for lint and format
 
-```typescript
-import { getSession, requireAuth } from "@blehprint/auth";
-import { env } from "cloudflare:workers";
+## Packages
 
-// Check if authenticated
-const session = await getSession(request, env.DB, env.BETTER_AUTH_SECRET);
+| Package                                      | Docs                                    |
+| -------------------------------------------- | --------------------------------------- |
+| [`workers/web`](./workers/web)               | [README](./workers/web/README.md)       |
+| [`workers/api`](./workers/api)               | [README](./workers/api/README.md)       |
+| [`@blehprint/auth`](./packages/auth)         | [README](./packages/auth/README.md)     |
+| [`@blehprint/database`](./packages/database) | [README](./packages/database/README.md) |
+| [`@blehprint/ui`](./packages/ui)             | [README](./packages/ui/README.md)       |
 
-// Require authentication (redirects to /login)
-const session = await requireAuth(request, env.DB, env.BETTER_AUTH_SECRET);
-```
+## Quick reference
 
-→ [Full auth documentation](./packages/auth/readme.md)
+**Session in a loader**
 
-### Database
+```ts
+import { getSession, requireSession } from "~/utils/auth.server";
 
-```typescript
-import { database } from "@blehprint/database";
-import { env } from "cloudflare:workers";
-
-const db = database(env.DB);
-const users = await db.query.user.findMany();
-```
-
-→ [Full database documentation](./packages/database/readme.md)
-
-### UI Components
-
-```bash
-cd packages/ui && bunx shadcn@latest add button
-```
-
-```tsx
-import { Button } from "@blehprint/ui/components/button";
-```
-
-→ [Full UI documentation](./packages/ui/readme.md)
-
-### Icons
-
-Icons are provided by [Lucide](https://lucide.dev). The package is available in both `@blehprint/ui` and `workers/web` so you can import icons directly where you need them without re-exporting through the UI package:
-
-```tsx
-import { ArrowRight, Loader2, Menu } from "lucide-react";
-
-<ArrowRight className="size-4" />
-```
-
-Browse all available icons at [lucide.dev/icons](https://lucide.dev/icons). Only the icons you import are included in the bundle.
-
-### Theming
-
-Dark/light mode powered by [remix-themes](https://github.com/abereghici/remix-themes).
-
-**Setup** — The theme is configured in `workers/web/app/root.tsx`:
-
-- `ThemeProvider` wraps the app and syncs theme state
-- `PreventFlashOnWrongTheme` prevents flash of wrong theme on SSR
-- Theme class (`dark`/`light`) is applied to `<html>`
-- Theme action endpoint at `/api/theme` handles persistence
-
-**Usage** — Toggle theme anywhere with the `useTheme` hook:
-
-```tsx
-import { useTheme } from "remix-themes";
-
-function ThemeToggle() {
-  const [theme, setTheme] = useTheme();
-
-  return (
-    <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
-      Toggle theme
-    </button>
-  );
+export async function loader({ request }: Route.LoaderArgs) {
+  const session = await getSession(request);      // Session | null
+  const { user } = await requireSession(request); // redirects to /auth/login when signed out
 }
 ```
 
-**Configuration** — Cookie settings are in `workers/web/app/utils/theme.server.ts`. Update the domain for production.
+**Calling the API**
 
-## Deployment
+```ts
+import { api, post } from "~/utils/auth.server";
 
-### 1. Create the D1 database
-
-```bash
-bunx wrangler d1 create my-app-database
+const res = await post(request, "/v1/auth/sign-in/email", { email, password });
+const health = await api(request, "/v1/health");
 ```
 
-Copy the `database_id` into `packages/database/wrangler.jsonc`, `workers/web/wrangler.jsonc`, and `workers/api/wrangler.jsonc`.
+**Database in the API worker**
 
-### 2. Run remote migrations
+```ts
+import { database, user } from "@blehprint/database";
 
-```bash
-bun run db:migrate:remote
+const db = database(c.env.DB);
+const users = await db.select().from(user);
 ```
 
-### 3. Set production secrets
+**Theme**: `useTheme()` from `remix-themes` anywhere in the web app; the preference is stored in a cookie via `/api/theme`.
 
-```bash
-# Run these from workers/api
-bunx wrangler secret put BETTER_AUTH_SECRET
-bunx wrangler secret put TRUSTED_ORIGINS   # e.g. https://my-app.com
-bunx wrangler secret put WEB_URL           # e.g. https://my-app.com
-```
+## Deploy
 
-### 4. Deploy
+1. Create the database and put its id in `workers/api/wrangler.jsonc`:
 
-```bash
-bun run deploy:web      # Deploy web worker
-bun run deploy:all      # Deploy everything
-```
+   ```bash
+   bunx wrangler d1 create my-app-database
+   ```
 
-## Project Structure
+2. Set the production web URL in `workers/api/wrangler.jsonc` (`vars.WEB_URL`). It is used for email links and as the trusted origin.
 
-```
-blehprint/
-├── packages/
-│   ├── auth/           # @blehprint/auth
-│   ├── database/       # @blehprint/database
-│   └── ui/             # @blehprint/ui
-├── workers/
-│   ├── web/            # React Router web app
-│   └── api/            # Hono API worker
-└── .wrangler/state/    # Local D1 state (gitignored)
-```
+3. Apply migrations and set the secret:
 
-## Author
+   ```bash
+   bun run db:migrate:remote
+   cd workers/api && bunx wrangler secret put BETTER_AUTH_SECRET
+   ```
 
-[Giel Cobben](https://github.com/gielcobben)
+4. Deploy:
+
+   ```bash
+   bun run deploy
+   ```
+
+The API worker is deployed first so the web worker's service binding has a target.
+
+## Sending real emails
+
+Pass `sendEmail` to `createAuth` in `workers/api/src/auth.ts`. It receives `{ to, subject, url }`; the default logs the link to the console.
+
+## Working with AI agents
+
+[`AGENTS.md`](./AGENTS.md) describes the layout, commands and conventions for coding agents. `CLAUDE.md` imports it, so Claude Code and Cursor read the same file.
 
 ## License
 
-This project is open source and available under the [MIT License](./LICENSE).
+[MIT](./LICENSE) — [Giel Cobben](https://github.com/gielcobben)

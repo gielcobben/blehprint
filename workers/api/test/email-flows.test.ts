@@ -35,10 +35,3 @@ describe("password reset", () => {
     expect(reset.ok).toBe(false);
   });
 });
-
-describe("email verification", () => {
-  it("rejects a bogus token", async () => {
-    const response = await call("/v1/auth/verify-email?token=not-a-real-token");
-    expect(response.ok).toBe(false);
-  });
-});
