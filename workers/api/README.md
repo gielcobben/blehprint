@@ -17,7 +17,7 @@ workers/api/
 
 | Route          | Handler                                                          |
 | -------------- | ---------------------------------------------------------------- |
-| `/v1/health`   | `{ ok: true }`                                                   |
+| `/v1/health`   | `{ ok, database }`; 503 when D1 is unreachable                    |
 | `/v1/auth/*`   | BetterAuth: sign-up, sign-in, get-session, sign-out, reset, verify |
 
 Add a route by chaining on the app in `src/index.ts`, or create a file that exports a `Hono` instance and mount it with `.route("/v1/things", things)`. Keep the chain in one expression so `AppType` stays accurate for `hc<AppType>()` from `hono/client`.
