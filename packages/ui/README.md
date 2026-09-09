@@ -23,7 +23,7 @@ Components land in `src/components/` and import each other by package name (`@bl
 
 ## Style
 
-Components are generated with shadcn's **Vega** style (`"style": "base-vega"` in `components.json`): the classic shadcn look, unmodified, so you can restyle from a known baseline. To switch to another shadcn style, change that field and regenerate:
+Components are generated with shadcn's **Nova** style (`"style": "base-nova"` in `components.json`): the current default, unmodified, so you can restyle from a known baseline. To switch to another shadcn style, change that field and regenerate:
 
 ```bash
 bun run ui:add button field input label separator spinner --overwrite
