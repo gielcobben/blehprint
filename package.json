@@ -1,11 +1,12 @@
 {
   "name": "blehprint",
+  "devDependencies": {
+    "@total-typescript/ts-reset": "^0.6.1",
+    "@total-typescript/tsconfig": "^1.0.4",
+    "@types/bun": "^1.4.2",
+    "typescript": "^7.0.2"
+  },
   "private": true,
-  "type": "module",
-  "workspaces": [
-    "workers/*",
-    "packages/*"
-  ],
   "scripts": {
     "update": "bun update",
     "dev": "bun run dev:api & bun run dev:web",
@@ -25,13 +26,9 @@
     "ui:add": "bunx --cwd packages/ui shadcn@latest add",
     "rename": "bun run scripts/rename.ts"
   },
-  "dependencies": {
-    "zod": "^3.23.8"
-  },
-  "devDependencies": {
-    "@total-typescript/ts-reset": "^0.6.1",
-    "@total-typescript/tsconfig": "^1.0.4",
-    "@types/bun": "^1.3.9",
-    "typescript": "^5.9.3"
-  }
+  "type": "module",
+  "workspaces": [
+    "workers/*",
+    "packages/*"
+  ]
 }
