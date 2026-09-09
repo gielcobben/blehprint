@@ -2,15 +2,11 @@ import { parseWithZod } from "@conform-to/zod/v4";
 import { redirect } from "react-router";
 import { LoginPage, loginSchema } from "~/pages/auth/login";
 import { errorMessage, getSession, post, redirectWithCookies } from "~/utils/auth.server";
+import { safeRedirect } from "~/utils/redirect";
 import type { Route } from "./+types/login";
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Log in" }];
-}
-
-/** Only allow same-site paths as a post-login destination. */
-function safeRedirect(to: string | null) {
-  return to?.startsWith("/") && !to.startsWith("//") ? to : "/";
 }
 
 export async function loader({ request, url }: Route.LoaderArgs) {

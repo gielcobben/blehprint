@@ -7,7 +7,9 @@
     "build": "wrangler deploy --dry-run",
     "deploy": "wrangler deploy",
     "typecheck": "wrangler types --strict-vars=false && tsc --noEmit",
-    "cf:typegen": "wrangler types --strict-vars=false"
+    "cf:typegen": "wrangler types --strict-vars=false",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@blehprint/auth": "workspace:*",
@@ -15,8 +17,10 @@
     "hono": "^4.13.7"
   },
   "devDependencies": {
+    "@cloudflare/vitest-plugin": "^1.1.6",
     "@types/node": "^26.5.0",
     "typescript": "^7.0.2",
+    "vitest": "^4.1.0",
     "wrangler": "^4.130.0"
   }
 }

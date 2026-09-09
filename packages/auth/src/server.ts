@@ -38,6 +38,9 @@ export function createAuth(options: CreateAuthOptions) {
 
   return betterAuth({
     secret: options.secret,
+    // The web worker calls the API through a service binding using its own
+    // origin, so the auth server is addressed as WEB_URL + basePath.
+    baseURL: webUrl,
     basePath: options.basePath ?? "/v1/auth",
     trustedOrigins: [webUrl],
     database: drizzleAdapter(database(options.db), {
