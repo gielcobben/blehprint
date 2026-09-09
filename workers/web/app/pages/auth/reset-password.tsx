@@ -68,7 +68,9 @@ export function ResetPasswordPage() {
               placeholder="Repeat your new password"
               enterKeyHint="done"
             />
-            {fields.confirmPassword.errors && <FieldError>{fields.confirmPassword.errors}</FieldError>}
+            {fields.confirmPassword.errors && (
+              <FieldError>{fields.confirmPassword.errors}</FieldError>
+            )}
           </Field>
         </FieldGroup>
 

@@ -1,6 +1,6 @@
+import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { database, schema } from "@blehprint/database";
 import { betterAuth } from "better-auth";
-import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 
 export type AuthEmail = {
   to: string;

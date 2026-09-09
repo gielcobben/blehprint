@@ -95,7 +95,9 @@ export function SignupPage() {
               placeholder="Repeat your password"
               enterKeyHint="done"
             />
-            {fields.confirmPassword.errors && <FieldError>{fields.confirmPassword.errors}</FieldError>}
+            {fields.confirmPassword.errors && (
+              <FieldError>{fields.confirmPassword.errors}</FieldError>
+            )}
           </Field>
         </FieldGroup>
 

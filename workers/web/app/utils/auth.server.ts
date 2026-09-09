@@ -1,5 +1,5 @@
-import type { Session } from "@blehprint/auth";
 import { env } from "cloudflare:workers";
+import type { Session } from "@blehprint/auth";
 import { redirect } from "react-router";
 
 export type { Session };

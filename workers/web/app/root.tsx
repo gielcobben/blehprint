@@ -10,12 +10,8 @@ import {
 import type { Route } from "./+types/root";
 
 import "./app.css";
+import { PreventFlashOnWrongTheme, ThemeProvider, useTheme } from "remix-themes";
 import { themeSessionResolver } from "~/utils/theme.server";
-import {
-  PreventFlashOnWrongTheme,
-  ThemeProvider,
-  useTheme,
-} from "remix-themes";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -42,22 +38,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const data = useRouteLoaderData<typeof loader>("root");
 
   return (
-    <ThemeProvider
-      specifiedTheme={data?.theme ?? null}
-      themeAction="/api/theme"
-    >
+    <ThemeProvider specifiedTheme={data?.theme ?? null} themeAction="/api/theme">
       <Document ssrTheme={Boolean(data?.theme)}>{children}</Document>
     </ThemeProvider>
   );
 }
 
-export function Document({
-  children,
-  ssrTheme,
-}: {
-  children: React.ReactNode;
-  ssrTheme: boolean;
-}) {
+export function Document({ children, ssrTheme }: { children: React.ReactNode; ssrTheme: boolean }) {
   const [theme] = useTheme();
 
   return (
@@ -90,9 +77,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   if (isRouteErrorResponse(error)) {
     message = error.status === 404 ? "404" : "Error";
     details =
-      error.status === 404
-        ? "The requested page could not be found."
-        : error.statusText || details;
+      error.status === 404 ? "The requested page could not be found." : error.statusText || details;
   } else if (import.meta.env.DEV && error && error instanceof Error) {
     details = error.message;
     stack = error.stack;

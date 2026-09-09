@@ -3,9 +3,10 @@
  * generates types, and applies the database migrations locally.
  * Safe to re-run; it never overwrites an existing .dev.vars.
  */
-import { $ } from "bun";
+
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+import { $ } from "bun";
 
 const root = join(import.meta.dirname, "..");
 const devVars = join(root, "workers/api/.dev.vars");
@@ -15,7 +16,10 @@ if (existsSync(devVars)) {
 } else {
   const example = await Bun.file(join(root, "workers/api/.dev.vars.example")).text();
   const secret = Buffer.from(crypto.getRandomValues(new Uint8Array(32))).toString("base64");
-  await Bun.write(devVars, example.replace("BETTER_AUTH_SECRET=replace-me", `BETTER_AUTH_SECRET=${secret}`));
+  await Bun.write(
+    devVars,
+    example.replace("BETTER_AUTH_SECRET=replace-me", `BETTER_AUTH_SECRET=${secret}`),
+  );
   console.log("  created  workers/api/.dev.vars");
 }
 

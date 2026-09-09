@@ -38,7 +38,9 @@ export function LoginPage({ verified = false }: { verified?: boolean }) {
       <FieldSet>
         <FieldLegend>Log in</FieldLegend>
         <FieldDescription>
-          {verified ? "Your email is verified. Log in to continue." : "Log in to your account to continue."}
+          {verified
+            ? "Your email is verified. Log in to continue."
+            : "Log in to your account to continue."}
         </FieldDescription>
         <FieldSeparator />
 
