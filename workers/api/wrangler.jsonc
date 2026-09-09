@@ -2,16 +2,21 @@
   "$schema": "https://unpkg.com/wrangler@latest/config-schema.json",
   "name": "blehprint-api",
   "main": "./src/index.ts",
-  "compatibility_date": "2025-04-07",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_date": "2026-09-01",
   "workers_dev": true,
   "dev": { "port": 8787 },
   "observability": { "enabled": true },
   "d1_databases": [
     {
       "binding": "DB",
+      "database_name": "blehprint-database",
       "database_id": "00000000-0000-0000-0000-000000000000",
-      "database_name": "blehprint-database"
+      "migrations_dir": "../../packages/database/migrations"
     }
-  ]
+  ],
+  "vars": {
+    // Production URL of the web app. Used for email links and as the trusted
+    // origin. Overridden locally by .dev.vars.
+    "WEB_URL": "https://blehprint.example.com"
+  }
 }

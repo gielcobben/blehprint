@@ -1,9 +1,8 @@
 import { Outlet } from "react-router";
-import type { Route } from "./+types/layout";
 
-export default function AuthLayout({}: Route.ComponentProps) {
+export default function AuthLayout() {
   return (
-    <main className="flex flex-col items-center justify-center min-h-svh">
+    <main className="flex min-h-svh flex-col items-center justify-center">
       <Outlet />
     </main>
   );

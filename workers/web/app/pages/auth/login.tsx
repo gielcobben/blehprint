@@ -18,13 +18,11 @@ import z from "zod";
 import { useIsPending } from "~/utils/form";
 
 export const loginSchema = z.object({
-  email: z.email("Email is invalid"),
-  password: z
-    .string("Password is required")
-    .min(8, "Password must be at least 8 characters"),
+  email: z.email("Enter a valid email address"),
+  password: z.string("Password is required").min(8, "Password must be at least 8 characters"),
 });
 
-export function LoginPage() {
+export function LoginPage({ verified = false }: { verified?: boolean }) {
   const lastResult = useActionData();
   const isPending = useIsPending();
 
@@ -32,22 +30,15 @@ export function LoginPage() {
     lastResult,
     shouldValidate: "onBlur",
     constraint: getZodConstraint(loginSchema),
-    onValidate({ formData }) {
-      return parseWithZod(formData, { schema: loginSchema });
-    },
+    onValidate: ({ formData }) => parseWithZod(formData, { schema: loginSchema }),
   });
 
   return (
-    <Form
-      {...getFormProps(form)}
-      method="POST"
-      action="/auth/login"
-      className="w-full max-w-xs px-4"
-    >
+    <Form {...getFormProps(form)} method="POST" className="w-full max-w-xs px-4">
       <FieldSet>
-        <FieldLegend>Sign In</FieldLegend>
+        <FieldLegend>Log in</FieldLegend>
         <FieldDescription>
-          Sign in to your account to continue.
+          {verified ? "Your email is verified. Log in to continue." : "Log in to your account to continue."}
         </FieldDescription>
         <FieldSeparator />
 
@@ -59,12 +50,11 @@ export function LoginPage() {
             <Input
               {...getInputProps(fields.email, { type: "email" })}
               aria-invalid={!!fields.email.errors}
-              placeholder="Enter your email"
+              autoComplete="email"
+              placeholder="you@example.com"
               enterKeyHint="next"
             />
-            {fields.email.errors && (
-              <FieldError>{fields.email.errors}</FieldError>
-            )}
+            {fields.email.errors && <FieldError>{fields.email.errors}</FieldError>}
           </Field>
 
           <Field data-invalid={!!fields.password.errors} className="relative">
@@ -72,16 +62,14 @@ export function LoginPage() {
             <Input
               {...getInputProps(fields.password, { type: "password" })}
               aria-invalid={!!fields.password.errors}
-              placeholder="Enter your password"
               autoComplete="current-password"
+              placeholder="Your password"
               enterKeyHint="done"
             />
-            {fields.password.errors && (
-              <FieldError>{fields.password.errors}</FieldError>
-            )}
+            {fields.password.errors && <FieldError>{fields.password.errors}</FieldError>}
             <Link
               to="/auth/forgot-password"
-              className="text-xs text-muted-foreground absolute right-0 top-0 w-fit!"
+              className="absolute top-0 right-0 w-fit! text-muted-foreground text-xs"
             >
               Forgot password?
             </Link>
@@ -92,13 +80,12 @@ export function LoginPage() {
       <FieldGroup className="mt-4">
         <Field orientation="horizontal">
           <Button type="submit" disabled={isPending} className="w-full">
-            {isPending ? (
-              <Spinner className="size-4 animate-spin" />
-            ) : (
-              "Sign In"
-            )}
+            {isPending ? <Spinner /> : "Log in"}
           </Button>
         </Field>
+        <FieldDescription className="text-center">
+          No account yet? <Link to="/auth/signup">Sign up</Link>
+        </FieldDescription>
       </FieldGroup>
     </Form>
   );

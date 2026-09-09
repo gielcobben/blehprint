@@ -1,30 +1,13 @@
 import { Hono } from "hono";
-import { cors } from "hono/cors";
-import { authApp } from "./auth";
+import { auth } from "./auth";
 
-export type Env = {
-  Bindings: {
-    DB: D1Database;
-    BETTER_AUTH_SECRET: string;
-    TRUSTED_ORIGINS: string;
-    WEB_URL: string;
-  };
-};
+export type Env = { Bindings: Cloudflare.Env };
 
-const app = new Hono<Env>();
+const app = new Hono<Env>()
+  .get("/v1/health", (c) => c.json({ ok: true }))
+  .route("/v1/auth", auth);
 
-app.use(
-  "/v1/*",
-  cors({
-    origin: (origin) => origin,
-    allowHeaders: ["Content-Type", "Authorization", "Cookie"],
-    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    credentials: true,
-  })
-);
-
-app.route("/v1/auth", authApp);
-app.get("/v1/health", (c) => c.json({ ok: true }));
-
+/** Route types for `hc<AppType>()` from `hono/client`. */
 export type AppType = typeof app;
+
 export default app;

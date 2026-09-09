@@ -1,9 +1,5 @@
 {
-  "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "types": ["bun"]
-  },
-  "include": ["./**/*.ts"]
+  "extends": "../tsconfig.json",
+  "include": ["./*.ts"],
+  "compilerOptions": { "types": ["bun"] }
 }

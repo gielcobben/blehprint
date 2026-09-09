@@ -1,98 +1,76 @@
-import { database } from "@blehprint/database";
-import * as schema from "@blehprint/database/schema";
+import { database, schema } from "@blehprint/database";
 import { betterAuth } from "better-auth";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { redirect } from "react-router";
+import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 
-export type AuthInstance = ReturnType<typeof createAuth>;
-export type SessionData = Awaited<
-  ReturnType<AuthInstance["api"]["getSession"]>
->;
+export type AuthEmail = {
+  to: string;
+  subject: string;
+  /** Link the user should open in the web app */
+  url: string;
+};
+
+export type CreateAuthOptions = {
+  /** D1 binding */
+  db: D1Database;
+  /** Secret used to sign sessions and tokens (BETTER_AUTH_SECRET) */
+  secret: string;
+  /** Public URL of the web app, used for email links and as the trusted origin */
+  webUrl: string;
+  /** Path the auth handler is mounted on in the API worker */
+  basePath?: string;
+  /** Where verification and reset emails go. Defaults to console.log. */
+  sendEmail?: (email: AuthEmail) => Promise<void>;
+};
+
+const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
+const SESSION_REFRESH_AGE = 60 * 60 * 24; // refresh a session if older than 1 day
+
+async function logEmail(email: AuthEmail) {
+  console.log(`[auth] ${email.subject} → ${email.to}\n       ${email.url}`);
+}
 
 /**
- * Create a BetterAuth instance configured for Cloudflare D1
+ * Create a BetterAuth instance backed by Cloudflare D1.
  */
-export function createAuth(
-  d1: D1Database,
-  secret: string,
-  options?: { trustedOrigins?: string[]; webUrl?: string },
-) {
-  const db = database(d1);
-
-  function toWebUrl(apiUrl: string, webPath: string): string {
-    if (!options?.webUrl) return apiUrl;
-    const parsed = new URL(apiUrl);
-    return `${options.webUrl}${webPath}?${parsed.searchParams.toString()}`;
-  }
+export function createAuth(options: CreateAuthOptions) {
+  const webUrl = options.webUrl.replace(/\/$/, "");
+  const sendEmail = options.sendEmail ?? logEmail;
 
   return betterAuth({
-    basePath: "/v1/auth",
-    trustedOrigins: options?.trustedOrigins ?? [],
-    database: drizzleAdapter(db, {
+    secret: options.secret,
+    basePath: options.basePath ?? "/v1/auth",
+    trustedOrigins: [webUrl],
+    database: drizzleAdapter(database(options.db), {
       provider: "sqlite",
-      schema: {
-        ...schema,
-      },
+      schema,
     }),
-    secret,
     emailAndPassword: {
       enabled: true,
       requireEmailVerification: true,
-      sendResetPassword: async function ({ user, url }) {
-        const webResetUrl = toWebUrl(url, "/auth/reset-password");
-        console.log("=== Password Reset ===");
-        console.log("User:", user.email);
-        console.log("URL:", webResetUrl);
-        console.log("====================");
-      },
+      sendResetPassword: ({ user, token }) =>
+        sendEmail({
+          to: user.email,
+          subject: "Reset your password",
+          url: `${webUrl}/auth/reset-password/${token}`,
+        }),
     },
     emailVerification: {
-      sendVerificationEmail: async ({ user, url }) => {
-        const webVerifyUrl = toWebUrl(url, "/auth/verify-email");
-        console.log("=== Email Verification ===");
-        console.log("User:", user.email);
-        console.log("URL:", webVerifyUrl);
-        console.log("====================");
-      },
+      sendVerificationEmail: ({ user, token }) =>
+        sendEmail({
+          to: user.email,
+          subject: "Verify your email",
+          url: `${webUrl}/auth/verify-email?token=${token}`,
+        }),
     },
     session: {
-      expiresIn: 60 * 60 * 24 * 7, // 7 days
-      updateAge: 60 * 60 * 24, // 1 day
+      expiresIn: SESSION_MAX_AGE,
+      updateAge: SESSION_REFRESH_AGE,
     },
-    plugins: [],
   });
 }
 
-/**
- * Get the current session from a request
- * Returns null if not authenticated
- */
-export async function getSession(
-  request: Request,
-  d1: D1Database,
-  secret: string,
-): Promise<SessionData> {
-  const auth = createAuth(d1, secret);
-  return auth.api.getSession({ headers: request.headers });
-}
+export type Auth = ReturnType<typeof createAuth>;
 
-/**
- * Require authentication for a route
- * Throws a redirect to /login if not authenticated
- */
-export async function requireAuth(
-  request: Request,
-  d1: D1Database,
-  secret: string,
-  redirectTo = "/login",
-): Promise<NonNullable<SessionData>> {
-  const session = await getSession(request, d1, secret);
-
-  if (!session) {
-    const url = new URL(request.url);
-    const callbackUrl = encodeURIComponent(url.pathname + url.search);
-    throw redirect(`${redirectTo}?callbackUrl=${callbackUrl}`);
-  }
-
-  return session;
-}
+/** `{ user, session }` as returned by `GET /v1/auth/get-session` */
+export type Session = Auth["$Infer"]["Session"];
+export type User = Session["user"];

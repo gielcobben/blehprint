@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": [
+    ".react-router/types/**/*",
+    "app/**/*",
+    "worker-configuration.d.ts",
+    "react-router.config.ts",
+    "vite.config.ts"
+  ],
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "types": ["@total-typescript/ts-reset", "vite/client", "node"],
+    "rootDirs": [".", "./.react-router/types"],
+    "paths": { "~/*": ["./app/*"] }
+  }
+}

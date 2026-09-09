@@ -1,11 +1,8 @@
-# cp workers/api/.dev.vars.example workers/api/.dev.vars
+# Local overrides for the API worker. Copy to .dev.vars (gitignored);
+# `bun run setup` does this for you.
 
-# BetterAuth secret key for encryption
-# Generate with: openssl rand -base64 32
-BETTER_AUTH_SECRET=your-secret-key-here
+# Signs sessions and tokens. Generate with: openssl rand -base64 32
+BETTER_AUTH_SECRET=replace-me
 
-# Comma-separated origins allowed to make auth requests
-TRUSTED_ORIGINS=http://localhost:3000
-
-# Web app URL (used for email verification/reset links)
+# Where the web app runs locally
 WEB_URL=http://localhost:3000

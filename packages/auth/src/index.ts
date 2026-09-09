@@ -1,2 +1,2 @@
-export { createAuth, getSession, requireAuth } from "./server";
-export type { AuthInstance, SessionData } from "./server";
+export { createAuth } from "./server";
+export type { Auth, AuthEmail, CreateAuthOptions, Session, User } from "./server";

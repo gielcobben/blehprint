@@ -1,49 +1,35 @@
 import { parseWithZod } from "@conform-to/zod/v4";
 import { redirect } from "react-router";
 import { LoginPage, loginSchema } from "~/pages/auth/login";
-import { getErrorMessage, getSession, signInEmail } from "~/utils/auth.server";
+import { errorMessage, getSession, post, redirectWithCookies } from "~/utils/auth.server";
 import type { Route } from "./+types/login";
 
 export function meta(_: Route.MetaArgs) {
-  return [{ title: "Login" }];
+  return [{ title: "Log in" }];
 }
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const session = await getSession(request);
-
-  if (session) {
-    return redirect("/");
-  }
-
-  return null;
+/** Only allow same-site paths as a post-login destination. */
+function safeRedirect(to: string | null) {
+  return to?.startsWith("/") && !to.startsWith("//") ? to : "/";
 }
 
-export async function action({ request }: Route.ActionArgs) {
-  const formData = await request.formData();
-  const submission = parseWithZod(formData, { schema: loginSchema });
+export async function loader({ request, url }: Route.LoaderArgs) {
+  if (await getSession(request)) throw redirect("/");
+  return { verified: url.searchParams.has("verified") };
+}
 
-  if (submission.status !== "success") {
-    return submission.reply();
-  }
+export async function action({ request, url }: Route.ActionArgs) {
+  const submission = parseWithZod(await request.formData(), { schema: loginSchema });
+  if (submission.status !== "success") return submission.reply();
 
-  try {
-    const response = await signInEmail(request, submission.value);
-
-    if (response.ok) {
-      return redirect("/", {
-        headers: {
-          "Set-Cookie": response.headers.get("Set-Cookie") || "",
-        },
-      });
-    }
-
-    const message = await getErrorMessage(response, "Invalid email or password");
+  const response = await post(request, "/v1/auth/sign-in/email", submission.value);
+  if (!response.ok) {
+    const message = await errorMessage(response, "Invalid email or password.");
     return submission.reply({ formErrors: [message] });
-  } catch {
-    return submission.reply({ formErrors: ["Invalid email or password"] });
   }
+  return redirectWithCookies(safeRedirect(url.searchParams.get("redirectTo")), response);
 }
 
-export default function LoginRoute({}: Route.ComponentProps) {
-  return <LoginPage />;
+export default function LoginRoute({ loaderData }: Route.ComponentProps) {
+  return <LoginPage verified={loaderData.verified} />;
 }

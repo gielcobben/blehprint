@@ -2,31 +2,17 @@ import { cloudflare } from "@cloudflare/vite-plugin";
 import { reactRouter } from "@react-router/dev/vite";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
-import { resolve, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   server: { port: 3000 },
-  resolve: {
-    tsconfigPaths: true,
-    alias: {
-      "@blehprint/ui/globals.css": resolve(
-        __dirname,
-        "../../packages/ui/src/styles/globals.css"
-      ),
-    },
-  },
-  ssr: {
-    optimizeDeps: {
-      include: ["@base-ui/react"],
-    },
-  },
+  resolve: { tsconfigPaths: true },
+  ssr: { optimizeDeps: { include: ["@base-ui/react"] } },
   plugins: [
     cloudflare({
       viteEnvironment: { name: "ssr" },
       persistState: { path: "../../.wrangler/state" },
+      // Runs the API worker in the same dev server so the service binding works locally.
+      auxiliaryWorkers: [{ configPath: "../api/wrangler.jsonc" }],
     }),
     tailwindcss(),
     reactRouter(),

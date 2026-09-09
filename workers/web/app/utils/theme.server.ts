@@ -1,18 +1,17 @@
 import { createCookieSessionStorage } from "react-router";
 import { createThemeSessionResolver } from "remix-themes";
 
-const isProduction = process.env.NODE_ENV === "production";
-
+/**
+ * Stores the light/dark preference in a cookie. The cookie is unsigned on
+ * purpose: a theme preference is not sensitive and needs no secret.
+ */
 const themeStorage = createCookieSessionStorage({
   cookie: {
     name: "theme",
     path: "/",
     httpOnly: true,
     sameSite: "lax",
-    secrets: ["s3cr3t"],
-    ...(isProduction
-      ? { domain: "your-production-domain.com", secure: true }
-      : {}),
+    secure: import.meta.env.PROD,
   },
 });
 

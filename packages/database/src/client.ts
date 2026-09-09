@@ -1,12 +1,9 @@
-/**
- * Database client factory for Drizzle ORM with D1
- */
-
 import { drizzle } from "drizzle-orm/d1";
 import * as schema from "./schema";
 
+/** Create a Drizzle client for a D1 binding. */
 export function database(d1: D1Database) {
   return drizzle(d1, { schema });
 }
 
-export type DatabaseClient = ReturnType<typeof database>;
+export type Database = ReturnType<typeof database>;

@@ -6,8 +6,8 @@
     "dev": "wrangler dev --persist-to ../../.wrangler/state",
     "build": "wrangler deploy --dry-run",
     "deploy": "wrangler deploy",
-    "typecheck": "tsc --noEmit",
-    "cf:typegen": "wrangler types"
+    "typecheck": "wrangler types --strict-vars=false && tsc --noEmit",
+    "cf:typegen": "wrangler types --strict-vars=false"
   },
   "dependencies": {
     "@blehprint/auth": "workspace:*",
@@ -15,7 +15,7 @@
     "hono": "^4.13.7"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^5.20260908.1",
+    "@types/node": "^26.5.0",
     "typescript": "^7.0.2",
     "wrangler": "^4.130.0"
   }

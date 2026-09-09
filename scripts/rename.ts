@@ -1,83 +1,58 @@
-import { readdir, readFile, writeFile, rm } from "node:fs/promises";
-import { join, extname } from "node:path";
+/**
+ * Renames the project from "blehprint" to the given name in every source and
+ * config file, then removes itself. Run once, right after cloning.
+ */
+import { readdir, readFile, rm, writeFile } from "node:fs/promises";
+import { extname, join } from "node:path";
 
 const OLD_NAME = "blehprint";
 const newName = process.argv[2];
 
 if (!newName) {
-	console.error("Usage: bun run rename <new-name>");
-	console.error('Example: bun run rename my-cool-app');
-	process.exit(1);
+  console.error("Usage: bun run rename <new-name>\nExample: bun run rename my-app");
+  process.exit(1);
 }
-
 if (!/^[a-z][a-z0-9-]*$/.test(newName)) {
-	console.error(
-		"Name must start with a lowercase letter and contain only lowercase letters, numbers, and hyphens.",
-	);
-	process.exit(1);
+  console.error("Name must be lowercase letters, numbers and hyphens, starting with a letter.");
+  process.exit(1);
 }
-
 if (newName === OLD_NAME) {
-	console.log("Nothing to rename — the name is already set.");
-	process.exit(0);
+  console.log("Nothing to rename.");
+  process.exit(0);
 }
 
-const EXTENSIONS = new Set([
-	".json",
-	".jsonc",
-	".ts",
-	".tsx",
-	".css",
-	".md",
-	".sql",
-]);
-
-const SKIP_DIRS = new Set([
-	"node_modules",
-	".git",
-	".wrangler",
-	".react-router",
-	".turbo",
-	".next",
-]);
+const EXTENSIONS = new Set([".json", ".jsonc", ".ts", ".tsx", ".css", ".md", ".sql"]);
+const SKIP = new Set(["node_modules", ".git", ".wrangler", ".react-router", "build", "migrations"]);
 
 async function* walk(dir: string): AsyncGenerator<string> {
-	for (const entry of await readdir(dir, { withFileTypes: true })) {
-		if (SKIP_DIRS.has(entry.name)) continue;
-		const full = join(dir, entry.name);
-		if (entry.isDirectory()) {
-			yield* walk(full);
-		} else if (EXTENSIONS.has(extname(entry.name))) {
-			yield full;
-		}
-	}
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    if (SKIP.has(entry.name)) continue;
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) yield* walk(path);
+    else if (EXTENSIONS.has(extname(entry.name))) yield path;
+  }
 }
 
 const root = join(import.meta.dirname, "..");
-let filesChanged = 0;
+let changed = 0;
 
 for await (const file of walk(root)) {
-	const content = await readFile(file, "utf-8");
-	const updated = content.replaceAll(OLD_NAME, newName);
-
-	if (updated !== content) {
-		await writeFile(file, updated);
-		filesChanged++;
-		console.log(`  updated  ${file.replace(root + "/", "")}`);
-	}
+  const before = await readFile(file, "utf8");
+  const after = before.replaceAll(OLD_NAME, newName);
+  if (after !== before) {
+    await writeFile(file, after);
+    changed++;
+    console.log(`  updated  ${file.slice(root.length + 1)}`);
+  }
 }
 
-// Remove the rename script and its parent dir — it's a one-time operation
-await rm(join(root, "scripts"), { recursive: true, force: true });
-filesChanged++;
+// This script is one-time: remove it and its package.json entry.
+const pkgPath = join(root, "package.json");
+const pkg = JSON.parse(await readFile(pkgPath, "utf8"));
+delete pkg.scripts.rename;
+await writeFile(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`);
+await rm(join(root, "scripts/rename.ts"));
 console.log("  removed  scripts/rename.ts");
 
-console.log(`\n✓ Renamed ${OLD_NAME} → ${newName} in ${filesChanged} files.\n`);
-console.log("Next steps:");
-console.log("  1. bun install");
-console.log("  2. cp workers/api/.dev.vars.example workers/api/.dev.vars");
-console.log("  3. openssl rand -base64 32");
-console.log("     Add the output to workers/api/.dev.vars as BETTER_AUTH_SECRET");
-console.log("  4. bun run cf:typegen");
-console.log("  5. bun run db:migrate:local");
-console.log("  6. bun run dev");
+console.log(`\n✓ Renamed ${OLD_NAME} → ${newName} in ${changed} files.`);
+console.log("\nNext: bun install && bun run setup && bun run dev\n");

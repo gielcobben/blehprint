@@ -1,19 +1,21 @@
 import { Button } from "@blehprint/ui/components/button";
-import { Link } from "react-router";
+import { FieldDescription, FieldLegend } from "@blehprint/ui/components/field";
 
-export function CheckEmailPage() {
+const copy = {
+  verify: "We sent you a link to verify your email address. Open it to finish creating your account.",
+  reset: "If an account exists for that address, we sent it a link to choose a new password.",
+};
+
+export function CheckEmailPage({ reason }: { reason: keyof typeof copy }) {
   return (
-    <div className="w-full max-w-xs px-4">
-      <h1 className="mb-2 font-medium text-sm">Check your email</h1>
-      <p className="text-muted-foreground text-left text-xs/relaxed leading-normal font-normal text-balance last:mt-0 nth-last-2:-mt-1 [&>a:hover]:text-primary [&>a]:underline [&>a]:underline-offset-4">
-        We've sent a link to your email to reset your password. Please check
-        your email and click the link to reset your password.
-      </p>
-      <div className="mt-2 grid grid-cols-2 gap-1">
-        <Button render={<Link to="https://mail.google.com" />}>
+    <div className="flex w-full max-w-xs flex-col gap-3 px-4">
+      <FieldLegend>Check your email</FieldLegend>
+      <FieldDescription>{copy[reason]}</FieldDescription>
+      <div className="grid grid-cols-2 gap-2">
+        <Button variant="outline" nativeButton={false} render={<a href="https://mail.google.com" />}>
           Open Gmail
         </Button>
-        <Button render={<Link to="https://outlook.live.com" />}>
+        <Button variant="outline" nativeButton={false} render={<a href="https://outlook.live.com" />}>
           Open Outlook
         </Button>
       </div>

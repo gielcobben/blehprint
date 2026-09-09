@@ -1,56 +1,30 @@
 import { parseWithZod } from "@conform-to/zod/v4";
 import { redirect } from "react-router";
+import { ForgotPasswordPage, forgotPasswordSchema } from "~/pages/auth/forgot-password";
+import { errorMessage, getSession, post } from "~/utils/auth.server";
 import type { Route } from "./+types/forgot-password";
-import { getErrorMessage, getSession, requestPasswordReset } from "~/utils/auth.server";
-import {
-  forgotPasswordSchema,
-  ForgotPasswordPage,
-} from "~/pages/auth/forgot-password";
 
 export function meta(_: Route.MetaArgs) {
-  return [{ title: "Forgot Password" }];
+  return [{ title: "Forgot password" }];
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const session = await getSession(request);
-
-  if (session) {
-    return redirect("/");
-  }
-
+  if (await getSession(request)) throw redirect("/");
   return null;
 }
 
 export async function action({ request }: Route.ActionArgs) {
-  const formData = await request.formData();
-  const submission = parseWithZod(formData, {
-    schema: forgotPasswordSchema,
-  });
+  const submission = parseWithZod(await request.formData(), { schema: forgotPasswordSchema });
+  if (submission.status !== "success") return submission.reply();
 
-  if (submission.status !== "success") {
-    return submission.reply();
-  }
-
-  try {
-    const response = await requestPasswordReset(request, submission.value);
-
-    if (response.ok) {
-      return redirect("/auth/check-email", {
-        headers: {
-          "Set-Cookie": response.headers.get("Set-Cookie") || "",
-        },
-      });
-    }
-
-    const message = await getErrorMessage(response, "Unable to send reset email. Please try again.");
+  const response = await post(request, "/v1/auth/request-password-reset", submission.value);
+  if (!response.ok) {
+    const message = await errorMessage(response, "Unable to send a reset link. Please try again.");
     return submission.reply({ formErrors: [message] });
-  } catch {
-    return submission.reply({
-      formErrors: ["Unable to send reset email. Please try again."],
-    });
   }
+  return redirect("/auth/check-email?for=reset");
 }
 
-export default function ForgotPasswordRoute({}: Route.ComponentProps) {
+export default function ForgotPasswordRoute(_: Route.ComponentProps) {
   return <ForgotPasswordPage />;
 }

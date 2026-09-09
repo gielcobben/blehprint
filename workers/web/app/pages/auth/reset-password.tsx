@@ -19,103 +19,71 @@ import { useIsPending } from "~/utils/form";
 
 export const resetPasswordSchema = z
   .object({
-    token: z.string("Token is required"),
-    newPassword: z
-      .string("Password is required")
-      .min(8, "Password must be at least 8 characters"),
-    confirmNewPassword: z
-      .string("Confirm password is required")
-      .min(8, "Confirm password must be at least 8 characters"),
+    password: z.string("Password is required").min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string("Confirm your password"),
   })
-  .refine((data) => data.newPassword === data.confirmNewPassword, {
-    message: "Passwords don't match",
-    path: ["confirmNewPassword"],
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
   });
 
-export function ResetPasswordPage({ token }: { token: string }) {
+export function ResetPasswordPage() {
   const lastResult = useActionData();
-
-  const formAction = `/auth/reset-password/${token}`;
-  const isPending = useIsPending({ formAction });
+  const isPending = useIsPending();
 
   const [form, fields] = useForm({
     lastResult,
     shouldValidate: "onBlur",
     constraint: getZodConstraint(resetPasswordSchema),
-    onValidate({ formData }) {
-      return parseWithZod(formData, { schema: resetPasswordSchema });
-    },
+    onValidate: ({ formData }) => parseWithZod(formData, { schema: resetPasswordSchema }),
   });
 
   return (
-    <Form
-      {...getFormProps(form)}
-      method="POST"
-      action={formAction}
-      className="w-full max-w-xs px-4"
-    >
-      <input
-        {...getInputProps(fields.token, { type: "hidden" })}
-        value={token}
-        readOnly
-      />
+    <Form {...getFormProps(form)} method="POST" className="w-full max-w-xs px-4">
       <FieldSet>
-        <FieldLegend>Reset Password</FieldLegend>
-        <FieldDescription>
-          Enter your new password to reset your password.
-        </FieldDescription>
+        <FieldLegend>Reset password</FieldLegend>
+        <FieldDescription>Choose a new password for your account.</FieldDescription>
         <FieldSeparator />
+
         {form.errors && <FieldError>{form.errors}</FieldError>}
+
         <FieldGroup>
-          <Field data-invalid={!!fields.newPassword.errors}>
-            <FieldLabel htmlFor={fields.newPassword.id}>
-              New Password
-            </FieldLabel>
+          <Field data-invalid={!!fields.password.errors}>
+            <FieldLabel htmlFor={fields.password.id}>New password</FieldLabel>
             <Input
-              {...getInputProps(fields.newPassword, { type: "password" })}
-              aria-invalid={!!fields.newPassword.errors}
-              placeholder="Enter your new password"
+              {...getInputProps(fields.password, { type: "password" })}
+              aria-invalid={!!fields.password.errors}
               autoComplete="new-password"
-              enterKeyHint="done"
+              placeholder="At least 8 characters"
+              enterKeyHint="next"
             />
-            {fields.newPassword.errors && (
-              <FieldError>{fields.newPassword.errors}</FieldError>
-            )}
+            {fields.password.errors && <FieldError>{fields.password.errors}</FieldError>}
           </Field>
-          <Field data-invalid={!!fields.confirmNewPassword.errors}>
-            <FieldLabel htmlFor={fields.confirmNewPassword.id}>
-              Confirm New Password
-            </FieldLabel>
+          <Field data-invalid={!!fields.confirmPassword.errors}>
+            <FieldLabel htmlFor={fields.confirmPassword.id}>Confirm new password</FieldLabel>
             <Input
-              {...getInputProps(fields.confirmNewPassword, {
-                type: "password",
-              })}
-              aria-invalid={!!fields.confirmNewPassword.errors}
-              placeholder="Confirm your new password"
+              {...getInputProps(fields.confirmPassword, { type: "password" })}
+              aria-invalid={!!fields.confirmPassword.errors}
               autoComplete="new-password"
+              placeholder="Repeat your new password"
               enterKeyHint="done"
             />
-            {fields.confirmNewPassword.errors && (
-              <FieldError>{fields.confirmNewPassword.errors}</FieldError>
-            )}
+            {fields.confirmPassword.errors && <FieldError>{fields.confirmPassword.errors}</FieldError>}
           </Field>
         </FieldGroup>
+
         <FieldGroup>
           <Field orientation="horizontal" className="grid grid-cols-2 gap-2">
             <Button
               disabled={isPending}
               nativeButton={false}
               variant="outline"
-              render={<Link to="/" />}
+              render={<Link to="/auth/login" />}
             >
               Cancel
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending ? (
-                <Spinner className="size-4 animate-spin" />
-              ) : (
-                "Reset Password"
-              )}
+              {isPending ? <Spinner /> : "Reset password"}
             </Button>
           </Field>
         </FieldGroup>

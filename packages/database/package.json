@@ -9,16 +9,18 @@
     "./client": "./src/client.ts"
   },
   "scripts": {
-    "db:studio": "drizzle-kit studio",
     "db:generate": "drizzle-kit generate",
-    "db:migrate:remote": "wrangler d1 migrations apply blehprint-database --remote",
-    "db:migrate:local": "wrangler d1 migrations apply --local blehprint-database --persist-to ../../.wrangler/state"
+    "db:migrate:local": "wrangler --config ../../workers/api/wrangler.jsonc d1 migrations apply blehprint-database --local --persist-to ../../.wrangler/state",
+    "db:migrate:remote": "wrangler --config ../../workers/api/wrangler.jsonc d1 migrations apply blehprint-database --remote",
+    "db:studio": "drizzle-kit studio",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.2"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260908.1",
+    "@types/node": "^26.5.0",
     "drizzle-kit": "^0.31.10",
     "wrangler": "^4.130.0"
   }

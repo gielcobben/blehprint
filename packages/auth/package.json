@@ -8,12 +8,15 @@
     "./server": "./src/server.ts"
   },
   "dependencies": {
+    "@better-auth/drizzle-adapter": "^1.7.3",
     "@blehprint/database": "workspace:*",
-    "better-auth": "^1.7.3",
-    "react-router": "^8.3.1"
+    "better-auth": "^1.7.3"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260908.1",
     "typescript": "^7.0.2"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
   }
 }

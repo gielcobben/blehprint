@@ -1,11 +1,24 @@
+import { Button } from "@blehprint/ui/components/button";
+import { FieldDescription, FieldLegend } from "@blehprint/ui/components/field";
+import { Link } from "react-router";
+
+/** Shown only when verification failed; a valid link redirects to login. */
 export function VerifyEmailPage() {
   return (
-    <div className="w-full max-w-xs px-4">
-      <h1 className="mb-2 font-medium text-sm">Verify your email</h1>
-      <p className="text-muted-foreground text-left text-xs/relaxed leading-normal font-normal text-balance last:mt-0 nth-last-2:-mt-1 [&>a:hover]:text-primary [&>a]:underline [&>a]:underline-offset-4">
-        We've sent a link to your email to verify your email. Please check your
-        email and click the link to verify your email.
-      </p>
+    <div className="flex w-full max-w-xs flex-col gap-3 px-4">
+      <FieldLegend>This link has expired</FieldLegend>
+      <FieldDescription>
+        The verification link is invalid or has already been used. Sign up again to get a new one,
+        or log in if your email is already verified.
+      </FieldDescription>
+      <div className="grid grid-cols-2 gap-2">
+        <Button variant="outline" nativeButton={false} render={<Link to="/auth/signup" />}>
+          Sign up
+        </Button>
+        <Button nativeButton={false} render={<Link to="/auth/login" />}>
+          Log in
+        </Button>
+      </div>
     </div>
   );
 }

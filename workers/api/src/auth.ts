@@ -1,14 +1,15 @@
-import { Hono } from "hono";
 import { createAuth } from "@blehprint/auth";
+import { Hono } from "hono";
 import type { Env } from "./index";
 
-export const authApp = new Hono<Env>();
-
-authApp.all("/*", async (c) => {
-  const origins = c.env.TRUSTED_ORIGINS?.split(",").filter(Boolean) ?? [];
-  const auth = createAuth(c.env.DB, c.env.BETTER_AUTH_SECRET, {
-    trustedOrigins: origins,
+/**
+ * Mounts the BetterAuth handler. Every request under /v1/auth/* is handled
+ * by BetterAuth itself (sign-up, sign-in, get-session, reset-password, ...).
+ */
+export const auth = new Hono<Env>().all("/*", (c) =>
+  createAuth({
+    db: c.env.DB,
+    secret: c.env.BETTER_AUTH_SECRET,
     webUrl: c.env.WEB_URL,
-  });
-  return auth.handler(c.req.raw);
-});
+  }).handler(c.req.raw),
+);

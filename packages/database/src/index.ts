@@ -1,8 +1,3 @@
-/**
- * @blehprint/database - Shared database package
- *
- * Provides Drizzle ORM schema and client for D1 database
- */
-
+export * as schema from "./schema";
 export * from "./schema";
-export * from "./client";
+export { database, type Database } from "./client";

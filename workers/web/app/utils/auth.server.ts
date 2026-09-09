@@ -1,117 +1,69 @@
+import type { Session } from "@blehprint/auth";
 import { env } from "cloudflare:workers";
 import { redirect } from "react-router";
 
-function apiUrl(path: string) {
-  return `${env.API_URL}${path}`;
+export type { Session };
+
+/**
+ * Call the API worker over its service binding, forwarding the browser's
+ * cookies and origin so BetterAuth can read the session and check the origin.
+ * The hostname is ignored by the binding; it only has to be a full URL.
+ */
+export function api(request: Request, path: string, init: RequestInit = {}) {
+  const origin = new URL(request.url).origin;
+  const headers = new Headers(init.headers);
+  headers.set("Cookie", request.headers.get("Cookie") ?? "");
+  headers.set("Origin", origin);
+  if (init.body && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+  return env.API.fetch(`${origin}${path}`, { ...init, headers });
 }
 
-function authHeaders(request: Request): HeadersInit {
-  return {
-    Cookie: request.headers.get("Cookie") || "",
-    "Content-Type": "application/json",
-    Origin: new URL(request.url).origin,
-  };
+/** POST JSON to the API. */
+export function post(request: Request, path: string, body: unknown) {
+  return api(request, path, { method: "POST", body: JSON.stringify(body) });
 }
 
-export async function getSession(request: Request) {
-  const res = await fetch(apiUrl("/v1/auth/get-session"), {
-    headers: {
-      Cookie: request.headers.get("Cookie") || "",
-      Origin: new URL(request.url).origin,
-    },
-  });
-  if (!res.ok) return null;
-  return res.json() as Promise<{ session: unknown; user: unknown } | null>;
+/** Current session, or null when the user is signed out. */
+export async function getSession(request: Request): Promise<Session | null> {
+  const response = await api(request, "/v1/auth/get-session");
+  if (!response.ok) return null;
+  return response.json<Session | null>();
 }
 
-export async function requireSession(request: Request) {
+/** Like getSession, but redirects to the login page when signed out. */
+export async function requireSession(request: Request): Promise<Session> {
   const session = await getSession(request);
-  if (!session) throw redirect("/auth/login");
+  if (!session) {
+    const { pathname, search } = new URL(request.url);
+    throw redirect(`/auth/login?redirectTo=${encodeURIComponent(pathname + search)}`);
+  }
   return session;
 }
 
-export async function signUpEmail(
-  request: Request,
-  body: { name: string; email: string; password: string },
-): Promise<Response> {
-  return fetch(apiUrl("/v1/auth/sign-up/email"), {
-    method: "POST",
-    headers: authHeaders(request),
-    body: JSON.stringify(body),
-  });
+/**
+ * Copy every Set-Cookie header from an API response onto a redirect, so the
+ * session cookie BetterAuth issued reaches the browser.
+ */
+export function redirectWithCookies(to: string, from: Response) {
+  const headers = new Headers();
+  for (const cookie of from.headers.getSetCookie()) {
+    headers.append("Set-Cookie", cookie);
+  }
+  return redirect(to, { headers });
 }
 
-export async function signInEmail(
-  request: Request,
-  body: { email: string; password: string },
-): Promise<Response> {
-  return fetch(apiUrl("/v1/auth/sign-in/email"), {
-    method: "POST",
-    headers: authHeaders(request),
-    body: JSON.stringify(body),
-  });
-}
-
-export async function signOut(request: Request): Promise<Response> {
-  return fetch(apiUrl("/v1/auth/sign-out"), {
-    method: "POST",
-    headers: authHeaders(request),
-    body: JSON.stringify({}),
-  });
-}
-
-export async function requestPasswordReset(
-  request: Request,
-  body: { email: string },
-): Promise<Response> {
-  return fetch(apiUrl("/v1/auth/forget-password"), {
-    method: "POST",
-    headers: authHeaders(request),
-    body: JSON.stringify({ ...body, redirectTo: "/auth/reset-password" }),
-  });
-}
-
-export async function resetPassword(
-  request: Request,
-  body: { token: string; newPassword: string },
-): Promise<Response> {
-  return fetch(apiUrl("/v1/auth/reset-password"), {
-    method: "POST",
-    headers: authHeaders(request),
-    body: JSON.stringify(body),
-  });
-}
-
-export async function verifyEmail(token: string): Promise<Response> {
-  return fetch(
-    apiUrl(`/v1/auth/verify-email?token=${encodeURIComponent(token)}`),
-  );
-}
-
-export async function getErrorMessage(
+/** Human-readable message from a failed API response. */
+export async function errorMessage(
   response: Response,
   fallback = "Something went wrong. Please try again.",
-): Promise<string> {
-  if (response.status === 403) {
+) {
+  const body = await response
+    .json<{ code?: string; message?: string }>()
+    .catch(() => ({}) as { code?: string; message?: string });
+  if (body.code === "EMAIL_NOT_VERIFIED") {
     return "Please verify your email address before signing in.";
   }
-  try {
-    const data = (await response.json()) as { message?: string };
-    return data.message || fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-export function proxyAuthRequest(request: Request): Promise<Response> {
-  const url = new URL(request.url);
-  const apiPath = url.pathname.replace(/^\/api\/auth/, "/v1/auth");
-
-  return fetch(`${env.API_URL}${apiPath}${url.search}`, {
-    method: request.method,
-    headers: request.headers,
-    body: request.body,
-    // @ts-expect-error Cloudflare Workers supports duplex
-    duplex: "half",
-  });
+  return body.message ?? fallback;
 }

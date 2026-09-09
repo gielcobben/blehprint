@@ -1,32 +1,28 @@
-import type { SessionData } from "@blehprint/auth";
 import { Button } from "@blehprint/ui/components/button";
 import { Link } from "react-router";
+import type { Session } from "~/utils/auth.server";
 
-export function HomePage({ session }: { session: SessionData }) {
-  const isLoggedIn = session !== null;
-
+export function HomePage({ session }: { session: Session | null }) {
   return (
-    <main className="flex flex-col gap-2 items-center justify-center min-h-svh">
-      <h1>Welcome to Blehprint</h1>
+    <main className="flex min-h-svh flex-col items-center justify-center gap-4">
+      <h1 className="font-medium text-lg">Welcome to Blehprint</h1>
 
-      {isLoggedIn && (
-        <div className="flex gap-1 flex-col">
-          <p className="text-sm text-muted-foreground mb-2">
-            Signed in as: <strong>{session.user.name}</strong>.
+      {session ? (
+        <div className="flex flex-col items-center gap-2">
+          <p className="text-muted-foreground text-sm">
+            Signed in as <strong>{session.user.name}</strong>
           </p>
           <Button nativeButton={false} render={<Link to="/auth/logout" />}>
-            Logout
+            Log out
           </Button>
         </div>
-      )}
-
-      {!isLoggedIn && (
-        <div className="flex gap-1">
+      ) : (
+        <div className="flex gap-2">
           <Button nativeButton={false} render={<Link to="/auth/login" />}>
-            Login
+            Log in
           </Button>
-          <Button nativeButton={false} render={<Link to="/auth/signup" />}>
-            Sign Up
+          <Button nativeButton={false} variant="outline" render={<Link to="/auth/signup" />}>
+            Sign up
           </Button>
         </div>
       )}

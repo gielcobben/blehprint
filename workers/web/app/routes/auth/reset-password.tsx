@@ -1,60 +1,33 @@
 import { parseWithZod } from "@conform-to/zod/v4";
 import { redirect } from "react-router";
-import {
-  ResetPasswordPage,
-  resetPasswordSchema,
-} from "~/pages/auth/reset-password";
-import { getErrorMessage, getSession, resetPassword } from "~/utils/auth.server";
+import { ResetPasswordPage, resetPasswordSchema } from "~/pages/auth/reset-password";
+import { errorMessage, getSession, post } from "~/utils/auth.server";
 import type { Route } from "./+types/reset-password";
 
 export function meta(_: Route.MetaArgs) {
-  return [{ title: "Reset Password" }];
+  return [{ title: "Reset password" }];
 }
 
-export async function loader({ request, params }: Route.LoaderArgs) {
-  const session = await getSession(request);
-
-  if (session) {
-    throw redirect("/");
-  }
-
-  const token = params.token;
-
-  if (!token) {
-    throw redirect("/auth/forgot-password");
-  }
-
-  return { token };
+export async function loader({ request }: Route.LoaderArgs) {
+  if (await getSession(request)) throw redirect("/");
+  return null;
 }
 
-export async function action({ request }: Route.ActionArgs) {
-  const formData = await request.formData();
-  const submission = parseWithZod(formData, {
-    schema: resetPasswordSchema,
+export async function action({ request, params }: Route.ActionArgs) {
+  const submission = parseWithZod(await request.formData(), { schema: resetPasswordSchema });
+  if (submission.status !== "success") return submission.reply();
+
+  const response = await post(request, "/v1/auth/reset-password", {
+    token: params.token,
+    newPassword: submission.value.password,
   });
-
-  if (submission.status !== "success") {
-    return submission.reply();
-  }
-
-  try {
-    const response = await resetPassword(request, submission.value);
-
-    if (response.ok) {
-      return redirect("/auth/login");
-    }
-
-    const message = await getErrorMessage(response, "Unable to reset password. Please try again.");
+  if (!response.ok) {
+    const message = await errorMessage(response, "This reset link is invalid or has expired.");
     return submission.reply({ formErrors: [message] });
-  } catch {
-    return submission.reply({
-      formErrors: ["Unable to reset password. Please try again."],
-    });
   }
+  return redirect("/auth/login");
 }
 
-export default function ResetPasswordRoute({
-  loaderData,
-}: Route.ComponentProps) {
-  return <ResetPasswordPage token={loaderData.token} />;
+export default function ResetPasswordRoute(_: Route.ComponentProps) {
+  return <ResetPasswordPage />;
 }

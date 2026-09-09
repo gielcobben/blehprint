@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 // ============================================================================
 // BetterAuth Core Tables
@@ -21,7 +21,9 @@ export const user = sqliteTable("user", {
     .default(sql`(unixepoch())`),
 });
 
-export const session = sqliteTable("session", {
+export const session = sqliteTable(
+  "session",
+  {
   id: text("id").primaryKey(),
   userId: text("user_id")
     .notNull()
@@ -36,9 +38,13 @@ export const session = sqliteTable("session", {
   updatedAt: integer("updated_at", { mode: "timestamp" })
     .notNull()
     .default(sql`(unixepoch())`),
-});
+  },
+  (table) => [index("session_user_id_idx").on(table.userId)],
+);
 
-export const account = sqliteTable("account", {
+export const account = sqliteTable(
+  "account",
+  {
   id: text("id").primaryKey(),
   userId: text("user_id")
     .notNull()
@@ -62,9 +68,13 @@ export const account = sqliteTable("account", {
   updatedAt: integer("updated_at", { mode: "timestamp" })
     .notNull()
     .default(sql`(unixepoch())`),
-});
+  },
+  (table) => [index("account_user_id_idx").on(table.userId)],
+);
 
-export const verification = sqliteTable("verification", {
+export const verification = sqliteTable(
+  "verification",
+  {
   id: text("id").primaryKey(),
   identifier: text("identifier").notNull(),
   value: text("value").notNull(),
@@ -75,7 +85,9 @@ export const verification = sqliteTable("verification", {
   updatedAt: integer("updated_at", { mode: "timestamp" })
     .notNull()
     .default(sql`(unixepoch())`),
-});
+  },
+  (table) => [index("verification_identifier_idx").on(table.identifier)],
+);
 
 // ============================================================================
 // Type Exports

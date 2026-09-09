@@ -1,34 +1,30 @@
 {
   "name": "blehprint",
+  "private": true,
+  "type": "module",
+  "packageManager": "bun@1.3.10",
+  "workspaces": ["workers/*", "packages/*"],
+  "scripts": {
+    "setup": "bun run scripts/setup.ts",
+    "dev": "bun run --cwd workers/web dev",
+    "build": "bun run --filter './workers/*' build",
+    "deploy": "bun run --cwd workers/api deploy && bun run --cwd workers/web deploy",
+    "typecheck": "bun run --filter '*' typecheck",
+    "test": "bun run --filter '*' test",
+    "check": "biome check",
+    "format": "biome check --write",
+    "db:generate": "bun run --cwd packages/database db:generate",
+    "db:migrate:local": "bun run --cwd packages/database db:migrate:local",
+    "db:migrate:remote": "bun run --cwd packages/database db:migrate:remote",
+    "db:studio": "bun run --cwd packages/database db:studio",
+    "ui:add": "bun run --cwd packages/ui add",
+    "rename": "bun run scripts/rename.ts"
+  },
   "devDependencies": {
+    "@biomejs/biome": "^2.5.12",
     "@total-typescript/ts-reset": "^0.6.1",
     "@total-typescript/tsconfig": "^1.0.4",
     "@types/bun": "^1.4.2",
     "typescript": "^7.0.2"
-  },
-  "private": true,
-  "scripts": {
-    "update": "bun update",
-    "dev": "bun run dev:api & bun run dev:web",
-    "dev:api": "bun run --cwd workers/api dev",
-    "dev:web": "bun run --cwd workers/web dev",
-    "build:api": "bun run --cwd workers/api build",
-    "build:web": "bun run --cwd workers/web build",
-    "deploy:api": "bun run --cwd workers/api deploy",
-    "deploy:web": "bun run --cwd workers/web build && bun run --cwd workers/web deploy",
-    "deploy:all": "bun run deploy:api && bun run deploy:web",
-    "db:generate": "bun run --cwd packages/database db:generate",
-    "db:migrate:remote": "bun run --cwd packages/database db:migrate:remote",
-    "db:migrate:local": "bun run --cwd packages/database db:migrate:local",
-    "db:studio": "bun run --cwd packages/database db:studio",
-    "typecheck": "bun run --cwd workers/api typecheck && bun run --cwd workers/web typecheck && bun run --cwd packages/database typecheck",
-    "cf:typegen": "bun run --cwd workers/api cf:typegen && bun run --cwd workers/web cf:typegen",
-    "ui:add": "bunx --cwd packages/ui shadcn@latest add",
-    "rename": "bun run scripts/rename.ts"
-  },
-  "type": "module",
-  "workspaces": [
-    "workers/*",
-    "packages/*"
-  ]
+  }
 }
