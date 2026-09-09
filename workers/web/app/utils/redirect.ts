@@ -3,6 +3,6 @@
  * bounce a user to another site after logging in.
  */
 export function safeRedirect(to: string | null | undefined, fallback = "/") {
-  if (!to || !to.startsWith("/") || to.startsWith("//") || to.startsWith("/\\")) return fallback;
-  return to;
+  const isSameSitePath = /^\/(?![/\\])/.test(to ?? "");
+  return isSameSitePath ? (to as string) : fallback;
 }

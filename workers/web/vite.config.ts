@@ -6,7 +6,6 @@ import { defineConfig } from "vite";
 export default defineConfig({
   server: { port: 3000 },
   resolve: { tsconfigPaths: true },
-  ssr: { optimizeDeps: { include: ["@base-ui/react"] } },
   plugins: [
     cloudflare({
       viteEnvironment: { name: "ssr" },

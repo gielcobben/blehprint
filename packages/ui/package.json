@@ -6,8 +6,8 @@
   "exports": {
     "./lib/*": "./src/lib/*.ts",
     "./hooks/*": "./src/hooks/*.ts",
-    "./styles/*": "./src/styles/*.css",
-    "./components/*": "./src/components/*.tsx"
+    "./components/*": "./src/components/*.tsx",
+    "./styles/*.css": "./src/styles/*.css"
   },
   "peerDependencies": {
     "react": "^19.2.8",
