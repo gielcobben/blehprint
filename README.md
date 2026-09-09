@@ -4,7 +4,7 @@ A full-stack TypeScript monorepo template for Cloudflare Workers, with the API r
 
 **Auth, database, UI components, dark mode, tests** — wired up and ready to deploy.
 
-> Prefer a single worker? Use the [main branch](https://github.com/gielcobben/blehprint).
+> Prefer a single worker? Use the [single-worker branch](https://github.com/gielcobben/blehprint/tree/single-worker).
 
 ## How it fits together
 
@@ -20,7 +20,7 @@ The web worker calls the API through a [service binding](https://developers.clou
 Prerequisites: [Bun](https://bun.sh) and a [Cloudflare account](https://dash.cloudflare.com/sign-up).
 
 ```bash
-bunx degit gielcobben/blehprint#separate-api my-app
+bunx degit gielcobben/blehprint my-app
 cd my-app
 bun run rename my-app   # @blehprint/* → @my-app/*, then removes itself
 bun install
