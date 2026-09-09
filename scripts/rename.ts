@@ -6,6 +6,7 @@ import { readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { extname, join } from "node:path";
 
 const OLD_NAME = "blehprint";
+const OLD_DISPLAY_NAME = "Blehprint";
 const newName = process.argv[2];
 
 if (!newName) {
@@ -20,6 +21,12 @@ if (newName === OLD_NAME) {
   console.log("Nothing to rename.");
   process.exit(0);
 }
+
+/** "my-cool-app" → "My Cool App", used where the template shows "Blehprint" to users. */
+const newDisplayName = newName
+  .split("-")
+  .map((word) => word[0]?.toUpperCase() + word.slice(1))
+  .join(" ");
 
 const EXTENSIONS = new Set([".json", ".jsonc", ".ts", ".tsx", ".css", ".md", ".sql"]);
 const SKIP = new Set(["node_modules", ".git", ".wrangler", ".react-router", "build", "migrations"]);
@@ -38,7 +45,7 @@ let changed = 0;
 
 for await (const file of walk(root)) {
   const before = await readFile(file, "utf8");
-  const after = before.replaceAll(OLD_NAME, newName);
+  const after = before.replaceAll(OLD_NAME, newName).replaceAll(OLD_DISPLAY_NAME, newDisplayName);
   if (after !== before) {
     await writeFile(file, after);
     changed++;
