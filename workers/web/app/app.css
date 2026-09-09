@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "tw-animate-css";
 @import "@blehprint/ui/styles/globals.css";
 
 @source "../node_modules/@blehprint/ui/src/**/*.tsx";

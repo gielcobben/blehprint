@@ -21,6 +21,14 @@ bun run ui:add card dialog   # from the repo root
 
 Components land in `src/components/` and import each other by package name (`@blehprint/ui/...`). That is shadcn's monorepo alias style and lets every consumer compile them without extra path config.
 
+## Style
+
+Components are generated with shadcn's **Vega** style (`"style": "base-vega"` in `components.json`): the classic shadcn look, unmodified, so you can restyle from a known baseline. To switch to another shadcn style, change that field and regenerate:
+
+```bash
+bun run ui:add button field input label separator spinner --overwrite
+```
+
 ## Theming
 
 `src/styles/globals.css` defines the color tokens in OKLCH for light and dark. Dark mode is the `dark` class on `<html>`, which `remix-themes` toggles in the web app.
