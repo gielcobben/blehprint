@@ -39,7 +39,7 @@ export function ForgotPasswordPage() {
         <FieldDescription>We will email you a link to choose a new password.</FieldDescription>
         <FieldSeparator />
 
-        {form.errors && <FieldError>{form.errors}</FieldError>}
+        {form.errors ? <FieldError>{form.errors}</FieldError> : null}
 
         <FieldGroup>
           <Field data-invalid={!!fields.email.errors}>
@@ -51,7 +51,7 @@ export function ForgotPasswordPage() {
               placeholder="you@example.com"
               enterKeyHint="done"
             />
-            {fields.email.errors && <FieldError>{fields.email.errors}</FieldError>}
+            {fields.email.errors ? <FieldError>{fields.email.errors}</FieldError> : null}
           </Field>
           <Field orientation="horizontal" className="grid grid-cols-2 gap-2">
             <Button

@@ -4,5 +4,6 @@
  */
 export function safeRedirect(to: string | null | undefined, fallback = "/") {
   const isSameSitePath = /^\/(?![/\\])/.test(to ?? "");
+
   return isSameSitePath ? (to as string) : fallback;
 }

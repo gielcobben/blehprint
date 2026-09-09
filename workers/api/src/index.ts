@@ -10,6 +10,7 @@ const app = new Hono<Env>()
       .then(() => "ok" as const)
       .catch(() => "unreachable" as const);
     const ok = database === "ok";
+
     return c.json({ ok, database }, ok ? 200 : 503);
   })
   .route("/v1/auth", auth);

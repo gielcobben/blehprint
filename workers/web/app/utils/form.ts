@@ -13,6 +13,7 @@ export function useIsPending({
   const navigation = useNavigation();
   const isPendingState =
     state === "non-idle" ? navigation.state !== "idle" : navigation.state === state;
+
   return (
     isPendingState &&
     navigation.formAction === (formAction ?? contextualFormAction) &&

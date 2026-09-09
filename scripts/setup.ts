@@ -13,6 +13,7 @@ const devVars = join(root, "workers/api/.dev.vars");
 /** Run a command quietly; on failure print its output and stop. */
 async function run(...command: string[]) {
   const result = await $`${command}`.cwd(root).nothrow().quiet();
+
   if (result.exitCode !== 0) {
     console.error(result.stdout.toString(), result.stderr.toString());
     console.error(

@@ -10,19 +10,28 @@ export function meta(_: Route.MetaArgs) {
 }
 
 export async function loader({ request, url }: Route.LoaderArgs) {
-  if (await getSession(request)) throw redirect("/");
+  if (await getSession(request)) {
+    throw redirect("/");
+  }
+
   return { verified: url.searchParams.has("verified") };
 }
 
 export async function action({ request, url }: Route.ActionArgs) {
   const submission = parseWithZod(await request.formData(), { schema: loginSchema });
-  if (submission.status !== "success") return submission.reply();
+
+  if (submission.status !== "success") {
+    return submission.reply();
+  }
 
   const response = await post(request, "/v1/auth/sign-in/email", submission.value);
+
   if (!response.ok) {
     const message = await errorMessage(response, "Invalid email or password.");
+
     return submission.reply({ formErrors: [message] });
   }
+
   return redirectWithCookies(safeRedirect(url.searchParams.get("redirectTo")), response);
 }
 

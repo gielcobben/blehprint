@@ -44,7 +44,7 @@ export function LoginPage({ verified = false }: { verified?: boolean }) {
         </FieldDescription>
         <FieldSeparator />
 
-        {form.errors && <FieldError>{form.errors}</FieldError>}
+        {form.errors ? <FieldError>{form.errors}</FieldError> : null}
 
         <FieldGroup>
           <Field data-invalid={!!fields.email.errors}>
@@ -56,7 +56,7 @@ export function LoginPage({ verified = false }: { verified?: boolean }) {
               placeholder="you@example.com"
               enterKeyHint="next"
             />
-            {fields.email.errors && <FieldError>{fields.email.errors}</FieldError>}
+            {fields.email.errors ? <FieldError>{fields.email.errors}</FieldError> : null}
           </Field>
 
           <Field data-invalid={!!fields.password.errors} className="relative">
@@ -68,7 +68,7 @@ export function LoginPage({ verified = false }: { verified?: boolean }) {
               placeholder="Your password"
               enterKeyHint="done"
             />
-            {fields.password.errors && <FieldError>{fields.password.errors}</FieldError>}
+            {fields.password.errors ? <FieldError>{fields.password.errors}</FieldError> : null}
             <Link
               to="/auth/forgot-password"
               className="absolute top-0 right-0 w-fit! text-muted-foreground text-xs"

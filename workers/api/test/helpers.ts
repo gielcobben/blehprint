@@ -8,8 +8,15 @@ export function call(
   init: { method?: string; body?: unknown; cookie?: string; origin?: string } = {},
 ) {
   const headers = new Headers({ Origin: init.origin ?? WEB_URL });
-  if (init.cookie) headers.set("Cookie", init.cookie);
-  if (init.body !== undefined) headers.set("Content-Type", "application/json");
+
+  if (init.cookie) {
+    headers.set("Cookie", init.cookie);
+  }
+
+  if (init.body !== undefined) {
+    headers.set("Content-Type", "application/json");
+  }
+
   return exports.default.fetch(`${WEB_URL}${path}`, {
     method: init.method ?? (init.body !== undefined ? "POST" : "GET"),
     headers,
@@ -32,6 +39,7 @@ export async function lastToken(prefix: "reset-password" | "email-verification")
   )
     .bind(`${prefix}:%`)
     .first<{ identifier: string }>();
+
   return row?.identifier.slice(prefix.length + 1) ?? null;
 }
 
@@ -39,6 +47,7 @@ export async function signUp(email = `user-${crypto.randomUUID()}@example.com`) 
   const response = await call("/v1/auth/sign-up/email", {
     body: { name: "Test User", email, password: "correct horse battery" },
   });
+
   return { email, response };
 }
 
@@ -47,6 +56,7 @@ export async function countUsers(email: string) {
   const row = await env.DB.prepare("SELECT COUNT(*) AS n FROM user WHERE email = ?")
     .bind(email)
     .first<{ n: number }>();
+
   return row?.n ?? 0;
 }
 

@@ -68,6 +68,7 @@ describe("sign in", () => {
       body: { email: "a@example.com", password: PASSWORD },
       origin: "https://evil.example",
     });
+
     expect(response.status).toBe(403);
   });
 });

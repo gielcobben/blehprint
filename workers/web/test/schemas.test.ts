@@ -17,6 +17,7 @@ describe("auth form schemas", () => {
       password: "12345678",
       confirmPassword: "87654321",
     });
+
     expect(result.success).toBe(false);
     expect(result.error?.issues[0]?.path).toEqual(["confirmPassword"]);
   });

@@ -45,7 +45,7 @@ export function ResetPasswordPage() {
         <FieldDescription>Choose a new password for your account.</FieldDescription>
         <FieldSeparator />
 
-        {form.errors && <FieldError>{form.errors}</FieldError>}
+        {form.errors ? <FieldError>{form.errors}</FieldError> : null}
 
         <FieldGroup>
           <Field data-invalid={!!fields.password.errors}>
@@ -57,7 +57,7 @@ export function ResetPasswordPage() {
               placeholder="At least 8 characters"
               enterKeyHint="next"
             />
-            {fields.password.errors && <FieldError>{fields.password.errors}</FieldError>}
+            {fields.password.errors ? <FieldError>{fields.password.errors}</FieldError> : null}
           </Field>
           <Field data-invalid={!!fields.confirmPassword.errors}>
             <FieldLabel htmlFor={fields.confirmPassword.id}>Confirm new password</FieldLabel>

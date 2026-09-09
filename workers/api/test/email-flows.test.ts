@@ -15,16 +15,19 @@ describe("password reset", () => {
     const reset = await call("/v1/auth/reset-password", {
       body: { token, newPassword: "a brand new password" },
     });
+
     expect(reset.status).toBe(200);
 
     const oldPassword = await call("/v1/auth/sign-in/email", {
       body: { email, password: "correct horse battery" },
     });
+
     expect(oldPassword.status).toBe(401);
 
     const newPassword = await call("/v1/auth/sign-in/email", {
       body: { email, password: "a brand new password" },
     });
+
     expect(newPassword.status).toBe(200);
   });
 
@@ -32,6 +35,7 @@ describe("password reset", () => {
     const reset = await call("/v1/auth/reset-password", {
       body: { token: "not-a-real-token", newPassword: "a brand new password" },
     });
+
     expect(reset.ok).toBe(false);
   });
 });

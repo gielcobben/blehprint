@@ -47,7 +47,7 @@ export function SignupPage() {
         <FieldDescription>Create an account to continue.</FieldDescription>
         <FieldSeparator />
 
-        {form.errors && <FieldError>{form.errors}</FieldError>}
+        {form.errors ? <FieldError>{form.errors}</FieldError> : null}
 
         <FieldGroup>
           <Field data-invalid={!!fields.name.errors}>
@@ -59,7 +59,7 @@ export function SignupPage() {
               placeholder="Your name"
               enterKeyHint="next"
             />
-            {fields.name.errors && <FieldError>{fields.name.errors}</FieldError>}
+            {fields.name.errors ? <FieldError>{fields.name.errors}</FieldError> : null}
           </Field>
           <Field data-invalid={!!fields.email.errors}>
             <FieldLabel htmlFor={fields.email.id}>Email</FieldLabel>
@@ -70,7 +70,7 @@ export function SignupPage() {
               placeholder="you@example.com"
               enterKeyHint="next"
             />
-            {fields.email.errors && <FieldError>{fields.email.errors}</FieldError>}
+            {fields.email.errors ? <FieldError>{fields.email.errors}</FieldError> : null}
           </Field>
         </FieldGroup>
 
@@ -84,7 +84,7 @@ export function SignupPage() {
               placeholder="At least 8 characters"
               enterKeyHint="next"
             />
-            {fields.password.errors && <FieldError>{fields.password.errors}</FieldError>}
+            {fields.password.errors ? <FieldError>{fields.password.errors}</FieldError> : null}
           </Field>
           <Field data-invalid={!!fields.confirmPassword.errors}>
             <FieldLabel htmlFor={fields.confirmPassword.id}>Confirm password</FieldLabel>

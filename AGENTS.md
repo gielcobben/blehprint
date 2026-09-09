@@ -47,6 +47,12 @@ Run all four checks before calling work done: `typecheck`, `test`, `check`, and 
 - **Generated files** (`worker-configuration.d.ts`, `.react-router/`) are gitignored; `typecheck`
   regenerates them. Do not hand-edit them.
 - Formatting is Biome (2 spaces, double quotes, 100 columns). Do not add another formatter.
+- **Braces on every `if`**, even one-liners (Biome enforces `useBlockStatements`).
+- **No `&&` as control flow.** Write `if (x) { doThing(); }`, not `x && doThing()` (Biome
+  enforces `noUnusedExpressions`). In JSX use a ternary: `{errors ? <FieldError /> : null}`.
+  Plain boolean logic inside a condition is fine.
+- **Give code room to breathe.** Blank line before `return`/`throw`, after a closed block, and
+  before an `if` that follows other statements. Biome keeps blank lines but never adds them.
 
 ## Things that look wrong but are not
 

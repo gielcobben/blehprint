@@ -9,19 +9,28 @@ export function meta(_: Route.MetaArgs) {
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
-  if (await getSession(request)) throw redirect("/");
+  if (await getSession(request)) {
+    throw redirect("/");
+  }
+
   return null;
 }
 
 export async function action({ request }: Route.ActionArgs) {
   const submission = parseWithZod(await request.formData(), { schema: forgotPasswordSchema });
-  if (submission.status !== "success") return submission.reply();
+
+  if (submission.status !== "success") {
+    return submission.reply();
+  }
 
   const response = await post(request, "/v1/auth/request-password-reset", submission.value);
+
   if (!response.ok) {
     const message = await errorMessage(response, "Unable to send a reset link. Please try again.");
+
     return submission.reply({ formErrors: [message] });
   }
+
   return redirect("/auth/check-email?for=reset");
 }
 

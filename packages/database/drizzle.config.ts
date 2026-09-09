@@ -6,7 +6,9 @@ function localDatabase() {
   const dir = "../../.wrangler/state/v3/d1/miniflare-D1DatabaseObject";
   try {
     const file = readdirSync(dir).find((name) => name.endsWith(".sqlite"));
-    if (file) return `${dir}/${file}`;
+    if (file) {
+      return `${dir}/${file}`;
+    }
   } catch {}
   return undefined;
 }

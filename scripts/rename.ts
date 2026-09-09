@@ -13,10 +13,12 @@ if (!newName) {
   console.error("Usage: bun run rename <new-name>\nExample: bun run rename my-app");
   process.exit(1);
 }
+
 if (!/^[a-z][a-z0-9-]*$/.test(newName)) {
   console.error("Name must be lowercase letters, numbers and hyphens, starting with a letter.");
   process.exit(1);
 }
+
 if (newName === OLD_NAME) {
   console.log("Nothing to rename.");
   process.exit(0);
@@ -33,10 +35,17 @@ const SKIP = new Set(["node_modules", ".git", ".wrangler", ".react-router", "bui
 
 async function* walk(dir: string): AsyncGenerator<string> {
   for (const entry of await readdir(dir, { withFileTypes: true })) {
-    if (SKIP.has(entry.name)) continue;
+    if (SKIP.has(entry.name)) {
+      continue;
+    }
+
     const path = join(dir, entry.name);
-    if (entry.isDirectory()) yield* walk(path);
-    else if (EXTENSIONS.has(extname(entry.name))) yield path;
+
+    if (entry.isDirectory()) {
+      yield* walk(path);
+    } else if (EXTENSIONS.has(extname(entry.name))) {
+      yield path;
+    }
   }
 }
 
@@ -46,6 +55,7 @@ let changed = 0;
 for await (const file of walk(root)) {
   const before = await readFile(file, "utf8");
   const after = before.replaceAll(OLD_NAME, newName).replaceAll(OLD_DISPLAY_NAME, newDisplayName);
+
   if (after !== before) {
     await writeFile(file, after);
     changed++;

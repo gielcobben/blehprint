@@ -9,20 +9,29 @@ export function meta(_: Route.MetaArgs) {
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
-  if (await getSession(request)) throw redirect("/");
+  if (await getSession(request)) {
+    throw redirect("/");
+  }
+
   return null;
 }
 
 export async function action({ request }: Route.ActionArgs) {
   const submission = parseWithZod(await request.formData(), { schema: signupSchema });
-  if (submission.status !== "success") return submission.reply();
+
+  if (submission.status !== "success") {
+    return submission.reply();
+  }
 
   const { name, email, password } = submission.value;
   const response = await post(request, "/v1/auth/sign-up/email", { name, email, password });
+
   if (!response.ok) {
     const message = await errorMessage(response, "Unable to sign up. Please try again.");
+
     return submission.reply({ formErrors: [message] });
   }
+
   // Email verification is required, so there is no session yet.
   return redirect("/auth/check-email?for=verify");
 }
